@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "InProcessDurableFunctions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7121"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 33075,
+      "useSSL": false
+    }
+  }
+}
