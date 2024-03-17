@@ -30,7 +30,19 @@ namespace InProcessDurableFunctions
             var businessId = context.GetInput<string>();
             await context.CallSubOrchestratorAsync(nameof(LoggingFunctions.LogMessageOrchestration), $"Validating Business ID: '{businessId}'");
 
+            var normalized = await context.CallSubOrchestratorAsync<string>(nameof(NormalizeBusinessIdOrchestration), businessId);
+
             return true;
+        }
+
+        [FunctionName(nameof(NormalizeBusinessIdOrchestration))]
+        public async Task<string> NormalizeBusinessIdOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
+        {
+            var input = context.GetInput<string>();
+            return input
+                ?.Replace(" ", "")
+                ?.Replace("-", "")
+                ?.ToUpper();
         }
 
     }

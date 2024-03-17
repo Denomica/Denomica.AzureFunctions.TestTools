@@ -14,12 +14,13 @@ namespace InProcessUnitTests
         public async Task Test01()
         {
             var mocker = new OrchestrationContextMocker(Services.GetServices())
-                .AddOrchestration<BusinessLogicFunctions>(x => x.ValidateBusinessIdOrchestration)
+                .AddOrchestration<BusinessLogicFunctions, bool>(x => x.ValidateBusinessIdOrchestration)
+                .AddOrchestration<BusinessLogicFunctions, string>(x => x.NormalizeBusinessIdOrchestration)
                 .AddOrchestration<BusinessLogicFunctions>(x => x.DoPeriodicStuffOrchestration)
                 .AddOrchestration<LoggingFunctions>(x => x.LogMessageOrchestration)
                 ;
 
-            var context = mocker.GetOrchestrationContext("FI12345678");
+            var context = mocker.GetOrchestrationContext("fi 1234567-8");
             var blf = mocker.GetRequiredService<BusinessLogicFunctions>();
             var validationResult = await blf.ValidateBusinessIdOrchestration(context);
         }

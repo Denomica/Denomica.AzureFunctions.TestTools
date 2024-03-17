@@ -26,6 +26,38 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
 
 
+        public OrchestrationContextMocker AddOrchestration<TClass, TResult>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task<TResult>>>> expression) where TClass : class
+        {
+            MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
+            if (!mi.HasAttribute<FunctionNameAttribute>()) throw new ArgumentException($"The specified method is not a function method. It lacks the '{typeof(FunctionNameAttribute).FullName}' attribute.");
+            if (!mi.HasParameterWithAttribute<OrchestrationTriggerAttribute>()) throw new ArgumentException("The given method does not have an orchestration trigger parameter.");
+
+            var name = mi.GetCustomAttribute<FunctionNameAttribute>()?.Name ?? throw new Exception("This exception should never be thrown since we checked the attribute earlier");
+
+            this._services.AddSingleton<TClass>();
+            var moc = this.GetMockedOrchestrationContext();
+
+            Func<IDurableOrchestrationContext, Task<TResult>> callback = (context) =>
+            {
+                var svc = this.GetServiceProvider().GetRequiredService<TClass>();
+                return mi.Invoke(svc, [context]) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
+            };
+
+            moc.Setup(x => x.CallSubOrchestratorAsync<TResult>(name, It.IsAny<object>()))
+                .Returns((string fn, object input) => callback(this.GetOrchestrationContext(input)));
+
+            moc.Setup(x => x.CallSubOrchestratorAsync<TResult>(name, It.IsAny<string>(), It.IsAny<object>()))
+                .Returns((string fn, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
+
+            moc.Setup(x => x.CallSubOrchestratorWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<object>()))
+                .Returns((string fn, RetryOptions ro, object input) => callback(this.GetOrchestrationContext(input)));
+
+            moc.Setup(x => x.CallSubOrchestratorWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<string>(), It.IsAny<object>()))
+                .Returns((string fn, RetryOptions ro, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
+
+            return this;
+        }
+
         public OrchestrationContextMocker AddOrchestration<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> expression) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
@@ -37,24 +69,23 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             this._services.AddSingleton<TClass>();
             var moc = this.GetMockedOrchestrationContext();
 
-            if (mi.ReturnType.IsGenericType)
+            Func<IDurableOrchestrationContext, Task> callback = (context) =>
             {
+                var svc = this.GetServiceProvider().GetRequiredService<TClass>();
+                return mi.Invoke(svc, [context]) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
+            };
 
-            }
-            else
-            {
-                Func<IDurableOrchestrationContext, Task> callback = (context) =>
-                {
-                    var svc = this.GetServiceProvider().GetRequiredService<TClass>();
-                    return mi.Invoke(svc, new object[] { context }) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
-                };
+            moc.Setup(x => x.CallSubOrchestratorAsync(name, It.IsAny<object>()))
+                .Returns((string fn, object input) => callback(this.GetOrchestrationContext(input)));
 
-                moc.Setup(x => x.CallSubOrchestratorAsync(name, It.IsAny<object>()))
-                    .Returns((string fn, object input) => callback(this.GetOrchestrationContext(input)));
+            moc.Setup(x => x.CallSubOrchestratorAsync(name, It.IsAny<string>(), It.IsAny<object>()))
+                .Returns((string fn, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
 
-                moc.Setup(x => x.CallSubOrchestratorWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<object>()))
-                    .Returns((string fn, RetryOptions ro, object input) => callback(this.GetOrchestrationContext(input)));
-            }
+            moc.Setup(x => x.CallSubOrchestratorWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<object>()))
+                .Returns((string fn, RetryOptions ro, object input) => callback(this.GetOrchestrationContext(input)));
+
+            moc.Setup(x => x.CallSubOrchestratorWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<string>(), It.IsAny<object>()))
+                .Returns((string fn, RetryOptions ro, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
 
 
             return this;
