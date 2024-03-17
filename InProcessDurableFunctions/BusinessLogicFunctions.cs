@@ -18,18 +18,12 @@ namespace InProcessDurableFunctions
 
         private readonly ILogger<BusinessLogicFunctions> Logger;
 
-        [FunctionName(nameof(DoPeriodicStuffOrchestration))]
-        public async Task DoPeriodicStuffOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
-        {
-
-        }
 
         [FunctionName(nameof(ValidateBusinessIdOrchestration))]
         public async Task<bool> ValidateBusinessIdOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var businessId = context.GetInput<string>();
             await context.CallSubOrchestratorAsync(nameof(LoggingFunctions.LogMessageOrchestration), $"Validating Business ID: '{businessId}'");
-
             var normalized = await context.CallSubOrchestratorAsync<string>(nameof(NormalizeBusinessIdOrchestration), businessId);
 
             return true;
@@ -39,11 +33,17 @@ namespace InProcessDurableFunctions
         public async Task<string> NormalizeBusinessIdOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var input = context.GetInput<string>();
+            return await context.CallActivityAsync<string>(nameof(NormalizeBusinessIdActivity), input);
+        }
+
+        [FunctionName(nameof(NormalizeBusinessIdActivity))]
+        public async Task<string> NormalizeBusinessIdActivity([ActivityTrigger] string input)
+        {
             return input
                 ?.Replace(" ", "")
                 ?.Replace("-", "")
                 ?.ToUpper();
-        }
 
+        }
     }
 }

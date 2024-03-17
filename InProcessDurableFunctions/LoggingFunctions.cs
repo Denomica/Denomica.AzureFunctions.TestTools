@@ -4,6 +4,7 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,8 +24,16 @@ namespace InProcessDurableFunctions
         [FunctionName(nameof(LogMessageOrchestration))]
         public async Task LogMessageOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
-            var message = context.GetInput<string>();
+            var input = context.GetInput<string>();
+            await context.CallActivityWithRetryAsync(nameof(LogMessageActivity), new RetryOptions(TimeSpan.FromSeconds(10), 6), input);
+        }
 
+        [FunctionName(nameof(LogMessageActivity))]
+        public Task LogMessageActivity([ActivityTrigger] string input)
+        {
+            this.Logger.LogDebug(input);
+
+            return Task.CompletedTask;
         }
     }
 }
