@@ -22,26 +22,23 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
     /// </summary>
     public class OrchestrationContextMocker
     {
-        /// <summary>
-        /// Creates a new instance of the mocker class.
-        /// </summary>
-        public OrchestrationContextMocker()
-        {
-            this._services = new ServiceCollection();
-        }
 
         /// <summary>
         /// Creates a new instance of the mocker class and specifies the services to build the mocker from.
         /// </summary>
         /// <param name="services">The services that contain dependencies for the classes declaring orchestration, activity and entity functions.</param>
         /// <exception cref="ArgumentNullException">The exception that is thrown if <paramref name="services"/> is <c>null</c>.</exception>
-        public OrchestrationContextMocker(IServiceCollection services)
+        public OrchestrationContextMocker(IServiceCollection? services = null, MockBehavior behavior = MockBehavior.Strict)
         {
-            this._services = services ?? throw new ArgumentNullException(nameof(services));
+            this._services = services ?? new ServiceCollection();
+            this.Behavior = behavior;
         }
 
         private readonly IServiceCollection _services;
+        private readonly MockBehavior Behavior;
 
+
+        #region Activities
 
         /// <summary>
         /// Adds an activity function to the mocker. The function takes a <see cref="IDurableActivityContext"/> as input and does not return any value.
@@ -209,7 +206,9 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             return this;
         }
 
+        #endregion
 
+        #region Orchestrations
 
         /// <summary>
         /// Adds an orchestration function to the mocker. The function does not return a value.
@@ -303,6 +302,11 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             return this;
         }
 
+        #endregion
+
+        #region Entities
+
+        #endregion
 
 
         /// <summary>
@@ -368,12 +372,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         private Mock<IDurableOrchestrationContext>? _Mock;
         private Mock<IDurableOrchestrationContext> GetMockedOrchestrationContext()
         {
-            if(null == _Mock)
-            {
-                _Mock = new Mock<IDurableOrchestrationContext>(MockBehavior.Strict);
-            }
-
-            return _Mock;
+            return _Mock ??= new Mock<IDurableOrchestrationContext>(this.Behavior);
         }
 
         private IServiceProvider GetServiceProvider()
