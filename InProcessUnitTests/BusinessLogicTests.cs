@@ -26,9 +26,9 @@ namespace InProcessUnitTests
         public async Task Test02()
         {
             var mocker = new OrchestrationContextMocker(Services.GetServices())
-                .AddOrchestration<BusinessLogicFunctions, bool>(x => x.ValidateBusinessIdOrchestration)
-                .AddOrchestration<BusinessLogicFunctions, string>(x => x.NormalizeBusinessIdOrchestration)
-                .AddOrchestration<LoggingFunctions>(x => x.LogMessageOrchestration, (ctx) => {
+                .AddOrchestrationFunction<BusinessLogicFunctions, bool>(x => x.ValidateBusinessIdOrchestration)
+                .AddOrchestrationFunction<BusinessLogicFunctions, string>(x => x.NormalizeBusinessIdOrchestration)
+                .AddOrchestrationFunction<LoggingFunctions>(x => x.LogMessageOrchestration, (ctx) => {
                     var msg = ctx.GetInput<string>();
                     return Task.CompletedTask;
                 });
@@ -44,12 +44,12 @@ namespace InProcessUnitTests
         private OrchestrationContextMocker GetMocker()
         {
             return new OrchestrationContextMocker(Services.GetServices())
-                .AddOrchestration<BusinessLogicFunctions, bool>(x => x.ValidateBusinessIdOrchestration)
-                .AddOrchestration<BusinessLogicFunctions, string>(x => x.NormalizeBusinessIdOrchestration)
-                .AddOrchestration<LoggingFunctions>(x => x.LogMessageOrchestration)
+                .AddOrchestrationFunction<BusinessLogicFunctions, bool>(x => x.ValidateBusinessIdOrchestration)
+                .AddOrchestrationFunction<BusinessLogicFunctions, string>(x => x.NormalizeBusinessIdOrchestration)
+                .AddOrchestrationFunction<LoggingFunctions>(x => x.LogMessageOrchestration)
 
-                .AddActivity<LoggingFunctions, string>(x => x.LogMessageActivity)
-                .AddActivity<BusinessLogicFunctions, string, string>(x => x.NormalizeBusinessIdActivity)
+                .AddActivityFunction<LoggingFunctions, string>(x => x.LogMessageActivity)
+                .AddActivityFunction<BusinessLogicFunctions, string, string>(x => x.NormalizeBusinessIdActivity)
                 ;
         }
     }

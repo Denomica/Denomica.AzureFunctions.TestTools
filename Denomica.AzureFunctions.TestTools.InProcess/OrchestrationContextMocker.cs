@@ -45,7 +45,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// </summary>
         /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
-        public OrchestrationContextMocker AddActivity<TClass>(Expression<Func<TClass, Func<IDurableActivityContext, Task>>> expression) where TClass : class
+        public OrchestrationContextMocker AddActivityFunction<TClass>(Expression<Func<TClass, Func<IDurableActivityContext, Task>>> expression) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
@@ -56,7 +56,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
                 return mi.Invoke(svc, [input]) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
-            return this.AddActivity(expression, callback);
+            return this.AddActivityFunction(expression, callback);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
         /// <param name="callback">The callback that will be called instead of the actual activity function.</param>
-        public OrchestrationContextMocker AddActivity<TClass>(Expression<Func<TClass, Func<IDurableActivityContext, Task>>> expression, Func<IDurableActivityContext, Task> callback) where TClass : class
+        public OrchestrationContextMocker AddActivityFunction<TClass>(Expression<Func<TClass, Func<IDurableActivityContext, Task>>> expression, Func<IDurableActivityContext, Task> callback) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
@@ -85,7 +85,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
         /// <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
-        public OrchestrationContextMocker AddActivity<TClass, TResult>(Expression<Func<TClass, Func<IDurableActivityContext, Task<TResult>>>> expression) where TClass : class
+        public OrchestrationContextMocker AddActivityFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableActivityContext, Task<TResult>>>> expression) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
@@ -96,7 +96,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
                 return mi.Invoke(svc, [input]) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
-            return this.AddActivity(expression, callback);
+            return this.AddActivityFunction(expression, callback);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
         /// <param name="callback">The callback that will be called instead of the actual activity function.</param>
-        public OrchestrationContextMocker AddActivity<TClass, TResult>(Expression<Func<TClass, Func<IDurableActivityContext, Task<TResult>>>> expression, Func<IDurableActivityContext, Task<TResult>> callback) where TClass : class
+        public OrchestrationContextMocker AddActivityFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableActivityContext, Task<TResult>>>> expression, Func<IDurableActivityContext, Task<TResult>> callback) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
@@ -126,7 +126,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
         /// <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="ActivityTriggerAttribute"/> attribute.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
-        public OrchestrationContextMocker AddActivity<TClass, TInput>(Expression<Func<TClass, Func<TInput, Task>>> expression) where TClass : class
+        public OrchestrationContextMocker AddActivityFunction<TClass, TInput>(Expression<Func<TClass, Func<TInput, Task>>> expression) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
@@ -137,7 +137,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
                 return mi.Invoke(svc, [input]) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
-            return this.AddActivity(expression, callback);
+            return this.AddActivityFunction(expression, callback);
         }
 
         /// <summary>
@@ -149,7 +149,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <param name="callback">The callback that will be called instead of the actual activity function.</param>
         /// <returns></returns>
         /// <exception cref="ArgumentException"></exception>
-        public OrchestrationContextMocker AddActivity<TClass, TInput>(Expression<Func<TClass, Func<TInput, Task>>> expression, Func<TInput, Task> callback) where TClass : class
+        public OrchestrationContextMocker AddActivityFunction<TClass, TInput>(Expression<Func<TClass, Func<TInput, Task>>> expression, Func<TInput, Task> callback) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
@@ -170,7 +170,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="ActivityTriggerAttribute"/> attribute.</typeparam>
         /// <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
-        public OrchestrationContextMocker AddActivity<TClass, TInput, TResult>(Expression<Func<TClass, Func<TInput, Task<TResult>>>> expression) where TClass : class
+        public OrchestrationContextMocker AddActivityFunction<TClass, TInput, TResult>(Expression<Func<TClass, Func<TInput, Task<TResult>>>> expression) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
@@ -181,7 +181,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
                 return mi.Invoke(svc, [input]) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
-            return this.AddActivity(expression, callback);
+            return this.AddActivityFunction(expression, callback);
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
         /// <param name="callback">The callback that will be called instead of the actual activity function.</param>
-        public OrchestrationContextMocker AddActivity<TClass, TInput, TResult>(Expression<Func<TClass, Func<TInput, Task<TResult>>>> expression, Func<TInput, Task<TResult>> callback) where TClass : class
+        public OrchestrationContextMocker AddActivityFunction<TClass, TInput, TResult>(Expression<Func<TClass, Func<TInput, Task<TResult>>>> expression, Func<TInput, Task<TResult>> callback) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
@@ -215,7 +215,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// </summary>
         /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
         /// <param name="expression">The expression representing the orchestration function.</param>
-        public OrchestrationContextMocker AddOrchestration<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> expression) where TClass : class
+        public OrchestrationContextMocker AddOrchestrationFunction<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> expression) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateOrchestrationMethod<TClass>(mi, out var name, out var moc);
@@ -226,7 +226,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
                 return mi.Invoke(svc, [context]) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
-            return this.AddOrchestration(expression, callback);
+            return this.AddOrchestrationFunction(expression, callback);
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
         /// <param name="expression">The expression representing the orchestration function.</param>
         /// <param name="callback">The callback that will be called instead of the actual orchestration function.</param>
-        public OrchestrationContextMocker AddOrchestration<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> expression, Func<IDurableOrchestrationContext, Task> callback) where TClass : class
+        public OrchestrationContextMocker AddOrchestrationFunction<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> expression, Func<IDurableOrchestrationContext, Task> callback) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateOrchestrationMethod<TClass>(mi, out var name, out var moc);
@@ -261,7 +261,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
         /// <typeparam name="TResult">The type for the value returned by the orchestration.</typeparam>
         /// <param name="expression">The expression representing the orchestration function.</param>
-        public OrchestrationContextMocker AddOrchestration<TClass, TResult>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task<TResult>>>> expression) where TClass : class
+        public OrchestrationContextMocker AddOrchestrationFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task<TResult>>>> expression) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateOrchestrationMethod<TClass>(mi, out var name, out var moc);
@@ -272,7 +272,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
                 return mi.Invoke(svc, [context]) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
-            return this.AddOrchestration(expression, callback);
+            return this.AddOrchestrationFunction(expression, callback);
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <typeparam name="TResult">The type for the value returned by the orchestration.</typeparam>
         /// <param name="expression">The expression representing the orchestration function.</param>
         /// <param name="callback">The callback that will be called instead of the actual orchestration function.</param>
-        public OrchestrationContextMocker AddOrchestration<TClass, TResult>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task<TResult>>>> expression, Func<IDurableOrchestrationContext, Task<TResult>> callback) where TClass : class
+        public OrchestrationContextMocker AddOrchestrationFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task<TResult>>>> expression, Func<IDurableOrchestrationContext, Task<TResult>> callback) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateOrchestrationMethod<TClass>(mi, out var name, out var moc);
