@@ -37,6 +37,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         private readonly IServiceCollection _services;
         private readonly MockBehavior Behavior;
 
+        private Dictionary<string, Action> MockSetups = new Dictionary<string, Action>();
 
         #region Activities
 
@@ -70,11 +71,14 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
 
-            moc.Setup(x => x.CallActivityAsync(name, It.IsAny<IDurableActivityContext>()))
-                .Returns((string fn, IDurableActivityContext input) => callback(input));
+            this.MockSetups[name] = () =>
+            {
+                moc.Setup(x => x.CallActivityAsync(name, It.IsAny<IDurableActivityContext>()))
+                    .Returns((string fn, IDurableActivityContext input) => callback(input));
 
-            moc.Setup(x => x.CallActivityWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<IDurableActivityContext>()))
-                .Returns((string fn, RetryOptions ro, IDurableActivityContext input) => callback(input));
+                moc.Setup(x => x.CallActivityWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<IDurableActivityContext>()))
+                    .Returns((string fn, RetryOptions ro, IDurableActivityContext input) => callback(input));
+            };
 
             return this;
         }
@@ -111,11 +115,14 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
 
-            moc.Setup(x => x.CallActivityAsync<TResult>(name, It.IsAny<IDurableActivityContext>()))
-                .Returns((string fn, IDurableActivityContext input) => callback(input));
+            this.MockSetups[name] = () =>
+            {
+                moc.Setup(x => x.CallActivityAsync<TResult>(name, It.IsAny<IDurableActivityContext>()))
+                    .Returns((string fn, IDurableActivityContext input) => callback(input));
 
-            moc.Setup(x => x.CallActivityWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<IDurableActivityContext>()))
-                .Returns((string fn, RetryOptions ro, IDurableActivityContext input) => callback(input));
+                moc.Setup(x => x.CallActivityWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<IDurableActivityContext>()))
+                    .Returns((string fn, RetryOptions ro, IDurableActivityContext input) => callback(input));
+            };
 
             return this;
         }
@@ -154,11 +161,14 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
 
-            moc.Setup(x => x.CallActivityAsync(name, It.IsAny<TInput>()))
-                .Returns((string fn, TInput input) => callback(input));
+            this.MockSetups[name] = () =>
+            {
+                moc.Setup(x => x.CallActivityAsync(name, It.IsAny<TInput>()))
+                    .Returns((string fn, TInput input) => callback(input));
 
-            moc.Setup(x => x.CallActivityWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<TInput>()))
-                .Returns((string fn, RetryOptions ro, TInput input) => callback(input));
+                moc.Setup(x => x.CallActivityWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<TInput>()))
+                    .Returns((string fn, RetryOptions ro, TInput input) => callback(input));
+            };
 
             return this;
         }
@@ -197,11 +207,14 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateActivityMethod<TClass>(mi, out var name, out var moc);
 
-            moc.Setup(x => x.CallActivityAsync<TResult>(name, It.IsAny<TInput>()))
-                .Returns((string fn, TInput input) => callback(input));
+            this.MockSetups[name] = () =>
+            {
+                moc.Setup(x => x.CallActivityAsync<TResult>(name, It.IsAny<TInput>()))
+                    .Returns((string fn, TInput input) => callback(input));
 
-            moc.Setup(x => x.CallActivityWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<TInput>()))
-                .Returns((string fn, RetryOptions ro, TInput input) => callback(input));
+                moc.Setup(x => x.CallActivityWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<TInput>()))
+                    .Returns((string fn, RetryOptions ro, TInput input) => callback(input));
+            };
 
             return this;
         }
@@ -240,17 +253,20 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateOrchestrationMethod<TClass>(mi, out var name, out var moc);
 
-            moc.Setup(x => x.CallSubOrchestratorAsync(name, It.IsAny<object>()))
-                .Returns((string fn, object input) => callback(this.GetOrchestrationContext(input)));
+            this.MockSetups[name] = () =>
+            {
+                moc.Setup(x => x.CallSubOrchestratorAsync(name, It.IsAny<object>()))
+                    .Returns((string fn, object input) => callback(this.GetOrchestrationContext(input)));
 
-            moc.Setup(x => x.CallSubOrchestratorAsync(name, It.IsAny<string>(), It.IsAny<object>()))
-                .Returns((string fn, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
+                moc.Setup(x => x.CallSubOrchestratorAsync(name, It.IsAny<string>(), It.IsAny<object>()))
+                    .Returns((string fn, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
 
-            moc.Setup(x => x.CallSubOrchestratorWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<object>()))
-                .Returns((string fn, RetryOptions ro, object input) => callback(this.GetOrchestrationContext(input)));
+                moc.Setup(x => x.CallSubOrchestratorWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<object>()))
+                    .Returns((string fn, RetryOptions ro, object input) => callback(this.GetOrchestrationContext(input)));
 
-            moc.Setup(x => x.CallSubOrchestratorWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<string>(), It.IsAny<object>()))
-                .Returns((string fn, RetryOptions ro, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
+                moc.Setup(x => x.CallSubOrchestratorWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<string>(), It.IsAny<object>()))
+                    .Returns((string fn, RetryOptions ro, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
+            };
 
             return this;
         }
@@ -287,17 +303,20 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateOrchestrationMethod<TClass>(mi, out var name, out var moc);
 
-            moc.Setup(x => x.CallSubOrchestratorAsync<TResult>(name, It.IsAny<object>()))
-                .Returns((string fn, object input) => callback(this.GetOrchestrationContext(input)));
+            this.MockSetups[name] = () =>
+            {
+                moc.Setup(x => x.CallSubOrchestratorAsync<TResult>(name, It.IsAny<object>()))
+                    .Returns((string fn, object input) => callback(this.GetOrchestrationContext(input)));
 
-            moc.Setup(x => x.CallSubOrchestratorAsync<TResult>(name, It.IsAny<string>(), It.IsAny<object>()))
-                .Returns((string fn, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
+                moc.Setup(x => x.CallSubOrchestratorAsync<TResult>(name, It.IsAny<string>(), It.IsAny<object>()))
+                    .Returns((string fn, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
 
-            moc.Setup(x => x.CallSubOrchestratorWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<object>()))
-                .Returns((string fn, RetryOptions ro, object input) => callback(this.GetOrchestrationContext(input)));
+                moc.Setup(x => x.CallSubOrchestratorWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<object>()))
+                    .Returns((string fn, RetryOptions ro, object input) => callback(this.GetOrchestrationContext(input)));
 
-            moc.Setup(x => x.CallSubOrchestratorWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<string>(), It.IsAny<object>()))
-                .Returns((string fn, RetryOptions ro, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
+                moc.Setup(x => x.CallSubOrchestratorWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<string>(), It.IsAny<object>()))
+                    .Returns((string fn, RetryOptions ro, string instanceId, object input) => callback(this.GetOrchestrationContext(input)));
+            };
 
             return this;
         }
@@ -314,7 +333,10 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// </summary>
         public IDurableOrchestrationContext GetOrchestrationContext()
         {
-            return this.GetMockedOrchestrationContext().Object;
+            var moc = this.GetMockedOrchestrationContext();
+            this.ApplySetups(moc);
+
+            return moc.Object;
         }
 
         /// <summary>
@@ -325,8 +347,8 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         public IDurableOrchestrationContext GetOrchestrationContext<TInput>(TInput input)
         {
             var moc = this.GetMockedOrchestrationContext();
-
             moc.Setup(x => x.GetInput<TInput>()).Returns(input);
+            this.ApplySetups(moc);
 
             return moc.Object;
         }
@@ -369,27 +391,21 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
 
 
+        private void ApplySetups(Mock<IDurableOrchestrationContext> mock)
+        {
+            this.MockSetups.Values.ToList().ForEach(x => x());
+            this.MockSetups.Clear();
+        }
+
         private Mock<IDurableOrchestrationContext>? _Mock;
         private Mock<IDurableOrchestrationContext> GetMockedOrchestrationContext()
         {
-            return _Mock ??= new Mock<IDurableOrchestrationContext>(this.Behavior);
+            return _Mock ??= new Mock<IDurableOrchestrationContext>();
         }
 
         private IServiceProvider GetServiceProvider()
         {
             return this._services.BuildServiceProvider();
-        }
-
-        private void ValidateOrchestrationMethod<TClass>(MethodInfo? method, out string name, out Mock<IDurableOrchestrationContext> mock) where TClass : class
-        {
-            if(null == method) throw new ArgumentNullException(nameof(method), "Not a method.");
-            if (!method.HasAttribute<FunctionNameAttribute>()) throw new ArgumentException($"The specified method is not a function method. It lacks the '{typeof(FunctionNameAttribute).FullName}' attribute.");
-            if (!method.HasParameterWithAttribute<OrchestrationTriggerAttribute>()) throw new ArgumentException("The given method does not have an orchestration trigger parameter.");
-
-            name = method.GetCustomAttribute<FunctionNameAttribute>()?.Name ?? throw new Exception("This exception should never be thrown since we checked the attribute earlier");
-
-            this._services.AddSingleton<TClass>();
-            mock = this.GetMockedOrchestrationContext();
         }
 
         private void ValidateActivityMethod<TClass>(MethodInfo? method, out string name, out Mock<IDurableOrchestrationContext> mock) where TClass : class
@@ -404,5 +420,18 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             mock = this.GetMockedOrchestrationContext();
 
         }
+
+        private void ValidateOrchestrationMethod<TClass>(MethodInfo? method, out string name, out Mock<IDurableOrchestrationContext> mock) where TClass : class
+        {
+            if (null == method) throw new ArgumentNullException(nameof(method), "Not a method.");
+            if (!method.HasAttribute<FunctionNameAttribute>()) throw new ArgumentException($"The specified method is not a function method. It lacks the '{typeof(FunctionNameAttribute).FullName}' attribute.");
+            if (!method.HasParameterWithAttribute<OrchestrationTriggerAttribute>()) throw new ArgumentException("The given method does not have an orchestration trigger parameter.");
+
+            name = method.GetCustomAttribute<FunctionNameAttribute>()?.Name ?? throw new Exception("This exception should never be thrown since we checked the attribute earlier");
+
+            this._services.AddSingleton<TClass>();
+            mock = this.GetMockedOrchestrationContext();
+        }
+
     }
 }

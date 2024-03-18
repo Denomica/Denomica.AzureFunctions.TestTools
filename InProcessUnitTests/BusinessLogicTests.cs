@@ -25,9 +25,7 @@ namespace InProcessUnitTests
         [TestMethod]
         public async Task Test02()
         {
-            var mocker = new OrchestrationContextMocker(Services.GetServices())
-                .AddOrchestrationFunction<BusinessLogicFunctions, bool>(x => x.ValidateBusinessIdOrchestration)
-                .AddOrchestrationFunction<BusinessLogicFunctions, string>(x => x.NormalizeBusinessIdOrchestration)
+            var mocker = this.GetMocker()
                 .AddOrchestrationFunction<LoggingFunctions>(x => x.LogMessageOrchestration, (ctx) => {
                     var msg = ctx.GetInput<string>();
                     return Task.CompletedTask;
