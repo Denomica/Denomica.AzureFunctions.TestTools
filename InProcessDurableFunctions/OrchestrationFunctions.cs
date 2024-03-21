@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace InProcessDurableFunctions
 {
-    public class BusinessLogicFunctions
+    public class OrchestrationFunctions
     {
-        public BusinessLogicFunctions(ILogger<BusinessLogicFunctions> logger)
+        public OrchestrationFunctions(ILogger<OrchestrationFunctions> logger)
         {
             this.Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        private readonly ILogger<BusinessLogicFunctions> Logger;
+        private readonly ILogger<OrchestrationFunctions> Logger;
 
 
         [FunctionName(nameof(CallVoidEntityOrchestration))]
@@ -45,17 +45,8 @@ namespace InProcessDurableFunctions
         public async Task<string> NormalizeBusinessIdOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             var input = context.GetInput<string>();
-            return await context.CallActivityAsync<string>(nameof(NormalizeBusinessIdActivity), input);
+            return await context.CallActivityAsync<string>(nameof(ActivityFunctions.NormalizeBusinessIdActivity), input);
         }
 
-        [FunctionName(nameof(NormalizeBusinessIdActivity))]
-        public async Task<string> NormalizeBusinessIdActivity([ActivityTrigger] string input)
-        {
-            return input
-                ?.Replace(" ", "")
-                ?.Replace("-", "")
-                ?.ToUpper();
-
-        }
     }
 }

@@ -31,6 +31,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         public OrchestrationContextMocker(IServiceCollection? services = null, MockBehavior behavior = MockBehavior.Strict)
         {
             this._services = services ?? new ServiceCollection();
+            this._services.AddSingleton<EntityContextMocker>(new EntityContextMocker(services, behavior));
             this._behavior = behavior;
         }
 
@@ -38,7 +39,6 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         private readonly MockBehavior _behavior;
 
         private Dictionary<string, Action> MockSetups = new Dictionary<string, Action>();
-        private EntityContextMocker? EntityContextMocker;
 
         private Func<EntityId, string, bool> EntityIdMatcher = (id, name) =>
         {
@@ -356,14 +356,16 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
                 mock.Setup(x => x.CallEntityAsync(It.Is<EntityId>(x => this.EntityIdMatcher(x, name)), It.IsAny<string>()))
                     .Returns((EntityId id, string operationName) =>
                     {
-                        callback(this.EntityContextMocker?.GetEntityContext());
+                        var eMocker = this.GetRequiredService<EntityContextMocker>();
+                        callback(eMocker.GetEntityContext());
                         return Task.CompletedTask;
                     });
 
                 mock.Setup(x => x.CallEntityAsync(It.Is<EntityId>(x => this.EntityIdMatcher(x, name)), It.IsAny<string>(), It.IsAny<object>()))
                     .Returns((EntityId id, string operationName, object input) =>
                     {
-                        callback(this.EntityContextMocker?.GetEntityContext(input));
+                        var eMocker = this.GetRequiredService<EntityContextMocker>();
+                        callback(eMocker.GetEntityContext(input));
                         return Task.CompletedTask;
                     });
             };
@@ -396,14 +398,16 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
                 mock.Setup(x => x.CallEntityAsync<TResult>(It.Is<EntityId>(x => this.EntityIdMatcher(x, name)), It.IsAny<string>()))
                     .Returns((EntityId id, string operationName) =>
                     {
-                        var result = callback(this.EntityContextMocker?.GetEntityContext());
+                        var eMocker = this.GetRequiredService<EntityContextMocker>();
+                        var result = callback(eMocker.GetEntityContext());
                         return Task.FromResult(result);
                     });
 
                 mock.Setup(x => x.CallEntityAsync<TResult>(It.Is<EntityId>(x => this.EntityIdMatcher(x, name)), It.IsAny<string>(), It.IsAny<object>()))
                     .Returns((EntityId id, string operationName, object input) =>
                     {
-                        var result = callback(this.EntityContextMocker?.GetEntityContext(input));
+                        var eMocker = this.GetRequiredService<EntityContextMocker>();
+                        var result = callback(eMocker.GetEntityContext(input));
                         return Task.FromResult(result);
                     });
             };
@@ -412,12 +416,6 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         }
 
         #endregion
-
-        public OrchestrationContextMocker AddMocker(EntityContextMocker mocker)
-        {
-            this.EntityContextMocker = mocker;
-            return this;
-        }
 
         public Task CallOrchestrationFunctionAsync<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> function) where TClass : class
         {
@@ -428,6 +426,17 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             var service = this.GetRequiredService<TClass>();
             var result = method.Invoke(service, [ mock.Object ]) as Task;
             return result ?? Task.CompletedTask;
+        }
+
+        public Task<TResult> CallOrchestrationFunctionAsync<TClass, TResult>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> function) where TClass : class
+        {
+            var method = function.ToMethodInfo() ?? throw new NullReferenceException("The expression does not represent a method.");
+            this.ValidateOrchestrationMethod<TClass>(method, out var name, out var mock);
+
+            this.ApplySetups(mock);
+            var service = this.GetRequiredService<TClass>();
+            var result = method.Invoke(service, [mock.Object]) as Task<TResult>;
+            return result ?? throw new Exception($"Orchestration function '{name}' did not return Task<{typeof(TResult).FullName}>.");
         }
 
         /// <summary>

@@ -41,7 +41,8 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
         private void ApplySetups(Mock<IDurableEntityContext> mock)
         {
-
+            this.MockSetups.Values.ToList().ForEach(x => x());
+            this.MockSetups.Clear();
         }
 
         private IServiceProvider GetServiceProvider()
