@@ -30,12 +30,10 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <exception cref="ArgumentNullException">The exception that is thrown if <paramref name="services"/> is <c>null</c>.</exception>
         public OrchestrationContextMocker(IServiceCollection? services = null, MockBehavior behavior = MockBehavior.Strict)
         {
-            this._services = services ?? new ServiceCollection();
-            this._services.AddSingleton<EntityContextMocker>(new EntityContextMocker(services, behavior));
+            this.Services = services ?? new ServiceCollection();
             this._behavior = behavior;
         }
 
-        private readonly IServiceCollection _services;
         private readonly MockBehavior _behavior;
 
         private Dictionary<string, Action> MockSetups = new Dictionary<string, Action>();
@@ -44,6 +42,9 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         {
             return id.EntityName.ToLower() == name.ToLower();
         };
+
+
+        public IServiceCollection Services { get; private set; }
 
         #region Activities
 
@@ -509,7 +510,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
         private IServiceProvider GetServiceProvider()
         {
-            return this._services.BuildServiceProvider();
+            return this.Services.BuildServiceProvider();
         }
 
         private void ValidateActivityMethod<TClass>(MethodInfo? method, out string name, out Mock<IDurableOrchestrationContext> mock) where TClass : class
@@ -520,7 +521,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
             name = method.GetCustomAttribute<FunctionNameAttribute>()?.Name ?? throw new Exception("This exception should never be thrown since we checked the attribute earlier");
 
-            this._services.AddSingleton<TClass>();
+            this.Services.AddSingleton<TClass>();
             mock = this._orchestrationMock;
         }
 
@@ -531,7 +532,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             if (!method.HasParameterWithAttribute<EntityTriggerAttribute>()) throw new ArgumentException("The given method does not have an entity trigger parameter.");
 
             name = method.GetCustomAttribute<FunctionNameAttribute>()?.Name ?? throw new Exception("This exception should never be thrown since we checked the attribute earlier");
-            this._services.AddSingleton<TClass>();
+            this.Services.AddSingleton<TClass>();
             mock = this._orchestrationMock;
         }
 
@@ -543,7 +544,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
             name = method.GetCustomAttribute<FunctionNameAttribute>()?.Name ?? throw new Exception("This exception should never be thrown since we checked the attribute earlier");
 
-            this._services.AddSingleton<TClass>();
+            this.Services.AddSingleton<TClass>();
             mock = this._orchestrationMock;
         }
 

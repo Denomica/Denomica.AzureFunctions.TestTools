@@ -13,15 +13,16 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
     {
         public EntityContextMocker(IServiceCollection? services = null, MockBehavior behavior = MockBehavior.Strict)
         {
-            this._services = services ?? new ServiceCollection();
+            this.Services = services ?? new ServiceCollection();
             this._behavior = behavior;
         }
 
-        private readonly IServiceCollection _services;
         private readonly MockBehavior _behavior;
 
         private Dictionary<string, Action> MockSetups = new Dictionary<string, Action>();
 
+
+        public IServiceCollection Services { get; private set; }
 
 
         public IDurableEntityContext GetEntityContext()
@@ -47,7 +48,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
         private IServiceProvider GetServiceProvider()
         {
-            return this._services.BuildServiceProvider();
+            return this.Services.BuildServiceProvider();
         }
 
     }

@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace InProcessUnitTests
 {
     [TestClass]
-    public class BusinessLogicTests
+    public class BasicTests
     {
         [TestMethod]
         public async Task Test01()
@@ -65,33 +65,26 @@ namespace InProcessUnitTests
 
         private OrchestrationContextMocker GetMocker()
         {
-            var services = Services.GetServices();
-            services
-                .AddSingleton<OrchestrationContextMocker>(sp =>
-                {
-                    return new OrchestrationContextMocker(services: services, behavior: Moq.MockBehavior.Strict)
-                        .AddOrchestrationFunction<OrchestrationFunctions, bool>(x => x.ValidateBusinessIdOrchestration)
-                        .AddOrchestrationFunction<OrchestrationFunctions, string>(x => x.NormalizeBusinessIdOrchestration)
-                        .AddOrchestrationFunction<LoggingFunctions>(x => x.LogMessageOrchestration)
-                        .AddOrchestrationFunction<OrchestrationFunctions>(x => x.IncreaseCounterOrchestration)
-                        .AddOrchestrationFunction<OrchestrationFunctions>(x => x.CallVoidEntityOrchestration)
+            return Services.GetServices()
+                .AddOrchestrationContextMocker(behavior: Moq.MockBehavior.Strict)
+                    .AddOrchestrationFunction<OrchestrationFunctions, bool>(x => x.ValidateBusinessIdOrchestration)
+                    .AddOrchestrationFunction<OrchestrationFunctions, string>(x => x.NormalizeBusinessIdOrchestration)
+                    .AddOrchestrationFunction<LoggingFunctions>(x => x.LogMessageOrchestration)
+                    .AddOrchestrationFunction<OrchestrationFunctions>(x => x.IncreaseCounterOrchestration)
+                    .AddOrchestrationFunction<OrchestrationFunctions>(x => x.CallVoidEntityOrchestration)
 
-                        .AddActivityFunction<LoggingFunctions, string>(x => x.LogMessageActivity)
-                        .AddActivityFunction<ActivityFunctions, string, string>(x => x.NormalizeBusinessIdActivity)
+                    .AddActivityFunction<LoggingFunctions, string>(x => x.LogMessageActivity)
+                    .AddActivityFunction<ActivityFunctions, string, string>(x => x.NormalizeBusinessIdActivity)
 
-                        .AddEntityFunction<EntityFunctions, int>(x => x.GenericCounterEntity)
-                        .AddEntityFunction<EntityFunctions>(x => x.VoidEntity)
-                        ;
-                })
-                .AddSingleton<EntityContextMocker>(sp =>
-                {
-                    return new EntityContextMocker(services: services, behavior: Moq.MockBehavior.Strict)
-                        ;
-                })
+                    .AddEntityFunction<EntityFunctions, int>(x => x.GenericCounterEntity)
+                    .AddEntityFunction<EntityFunctions>(x => x.VoidEntity)
+                .Services
+                    
+                .AddEntityContextMocker(behavior: Moq.MockBehavior.Strict)
+                .Services
 
-                ;
-
-            return services.BuildServiceProvider().GetRequiredService<OrchestrationContextMocker>();
+                .BuildServiceProvider()
+                .GetRequiredService<OrchestrationContextMocker>();
         }
     }
 }
