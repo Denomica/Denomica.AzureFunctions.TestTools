@@ -31,13 +31,19 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         public OrchestrationContextMocker(IServiceCollection? services = null, MockBehavior behavior = MockBehavior.Strict)
         {
             this._services = services ?? new ServiceCollection();
-            this.Behavior = behavior;
+            this._behavior = behavior;
         }
 
         private readonly IServiceCollection _services;
-        private readonly MockBehavior Behavior;
+        private readonly MockBehavior _behavior;
 
         private Dictionary<string, Action> MockSetups = new Dictionary<string, Action>();
+        private EntityContextMocker? EntityContextMocker;
+
+        private Func<EntityId, string, bool> EntityIdMatcher = (id, name) =>
+        {
+            return id.EntityName.ToLower() == name.ToLower();
+        };
 
         #region Activities
 
@@ -325,18 +331,112 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
         #region Entities
 
+        public OrchestrationContextMocker AddEntityFunction<TClass>(Expression<Func<TClass, Action<IDurableEntityContext>>> expression) where TClass : class
+        {
+            MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
+            this.ValidateEntityMethod<TClass>(mi, out var name, out var mock);
+
+            Action<IDurableEntityContext> callback = context =>
+            {
+                var svc = this.GetServiceProvider().GetRequiredService<TClass>();
+                mi.Invoke(svc, [context]);
+            };
+
+
+            return this.AddEntityFunction(expression, callback);
+        }
+
+        public OrchestrationContextMocker AddEntityFunction<TClass>(Expression<Func<TClass, Action<IDurableEntityContext>>> expression, Action<IDurableEntityContext> callback) where TClass : class
+        {
+            MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
+            this.ValidateEntityMethod<TClass>(mi, out var name, out var mock);
+
+            this.MockSetups[name] = () =>
+            {
+                mock.Setup(x => x.CallEntityAsync(It.Is<EntityId>(x => this.EntityIdMatcher(x, name)), It.IsAny<string>()))
+                    .Returns((EntityId id, string operationName) =>
+                    {
+                        callback(this.EntityContextMocker?.GetEntityContext());
+                        return Task.CompletedTask;
+                    });
+
+                mock.Setup(x => x.CallEntityAsync(It.Is<EntityId>(x => this.EntityIdMatcher(x, name)), It.IsAny<string>(), It.IsAny<object>()))
+                    .Returns((EntityId id, string operationName, object input) =>
+                    {
+                        callback(this.EntityContextMocker?.GetEntityContext(input));
+                        return Task.CompletedTask;
+                    });
+            };
+
+            return this;
+        }
+
+        public OrchestrationContextMocker AddEntityFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableEntityContext, TResult>>> expression) where TClass : class
+        {
+            MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
+            this.ValidateEntityMethod<TClass>(mi, out var name, out var mock);
+
+            Func<IDurableEntityContext, TResult> callback = context =>
+            {
+                var svc = this.GetServiceProvider().GetRequiredService<TClass>();
+                var result = mi.Invoke(svc, [context]);
+                return result is TResult ? (TResult)result : throw new Exception($"The entity function '{name}' did not return a valid result of type '{typeof(TResult).FullName}'.");
+            };
+
+            return this.AddEntityFunction(expression, callback);
+        }
+
+        public OrchestrationContextMocker AddEntityFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableEntityContext, TResult>>> expression, Func<IDurableEntityContext, TResult> callback) where TClass : class
+        {
+            MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
+            this.ValidateEntityMethod<TClass>(mi, out var name, out var mock);
+
+            this.MockSetups[name] = () =>
+            {
+                mock.Setup(x => x.CallEntityAsync<TResult>(It.Is<EntityId>(x => this.EntityIdMatcher(x, name)), It.IsAny<string>()))
+                    .Returns((EntityId id, string operationName) =>
+                    {
+                        var result = callback(this.EntityContextMocker?.GetEntityContext());
+                        return Task.FromResult(result);
+                    });
+
+                mock.Setup(x => x.CallEntityAsync<TResult>(It.Is<EntityId>(x => this.EntityIdMatcher(x, name)), It.IsAny<string>(), It.IsAny<object>()))
+                    .Returns((EntityId id, string operationName, object input) =>
+                    {
+                        var result = callback(this.EntityContextMocker?.GetEntityContext(input));
+                        return Task.FromResult(result);
+                    });
+            };
+
+            return this;
+        }
+
         #endregion
 
+        public OrchestrationContextMocker AddMocker(EntityContextMocker mocker)
+        {
+            this.EntityContextMocker = mocker;
+            return this;
+        }
+
+        public Task CallOrchestrationFunctionAsync<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> function) where TClass : class
+        {
+            var method = function.ToMethodInfo() ?? throw new NullReferenceException("The expression does not represent a method.");
+            this.ValidateOrchestrationMethod<TClass>(method, out var name, out var mock);
+
+            this.ApplySetups(mock);
+            var service = this.GetRequiredService<TClass>();
+            var result = method.Invoke(service, [ mock.Object ]) as Task;
+            return result ?? Task.CompletedTask;
+        }
 
         /// <summary>
         /// Returns a mocked orchestration context instance without a specified input.
         /// </summary>
         public IDurableOrchestrationContext GetOrchestrationContext()
         {
-            var moc = this.GetMockedOrchestrationContext();
-            this.ApplySetups(moc);
-
-            return moc.Object;
+            this.ApplySetups(this._orchestrationMock);
+            return this._orchestrationMock.Object;
         }
 
         /// <summary>
@@ -346,11 +446,10 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <param name="input">The input value to send to the orchestration function.</param>
         public IDurableOrchestrationContext GetOrchestrationContext<TInput>(TInput input)
         {
-            var moc = this.GetMockedOrchestrationContext();
-            moc.Setup(x => x.GetInput<TInput>()).Returns(input);
-            this.ApplySetups(moc);
+            this._orchestrationMock.Setup(x => x.GetInput<TInput>()).Returns(input);
+            this.ApplySetups(this._orchestrationMock);
 
-            return moc.Object;
+            return this._orchestrationMock.Object;
         }
 
         /// <summary>
@@ -391,16 +490,12 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
 
 
+        private Mock<IDurableOrchestrationContext> _orchestrationMock = new Mock<IDurableOrchestrationContext>();
+
         private void ApplySetups(Mock<IDurableOrchestrationContext> mock)
         {
             this.MockSetups.Values.ToList().ForEach(x => x());
             this.MockSetups.Clear();
-        }
-
-        private Mock<IDurableOrchestrationContext>? _Mock;
-        private Mock<IDurableOrchestrationContext> GetMockedOrchestrationContext()
-        {
-            return _Mock ??= new Mock<IDurableOrchestrationContext>();
         }
 
         private IServiceProvider GetServiceProvider()
@@ -417,8 +512,18 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             name = method.GetCustomAttribute<FunctionNameAttribute>()?.Name ?? throw new Exception("This exception should never be thrown since we checked the attribute earlier");
 
             this._services.AddSingleton<TClass>();
-            mock = this.GetMockedOrchestrationContext();
+            mock = this._orchestrationMock;
+        }
 
+        private void ValidateEntityMethod<TClass>(MethodInfo? method, out string name, out Mock<IDurableOrchestrationContext> mock) where TClass : class
+        {
+            if (null == method) throw new ArgumentNullException(nameof(method), "Not a method.");
+            if (!method.HasAttribute<FunctionNameAttribute>()) throw new ArgumentException($"The specified method is not a function method. It lacks the '{typeof(FunctionNameAttribute).FullName}' attribute.");
+            if (!method.HasParameterWithAttribute<EntityTriggerAttribute>()) throw new ArgumentException("The given method does not have an entity trigger parameter.");
+
+            name = method.GetCustomAttribute<FunctionNameAttribute>()?.Name ?? throw new Exception("This exception should never be thrown since we checked the attribute earlier");
+            this._services.AddSingleton<TClass>();
+            mock = this._orchestrationMock;
         }
 
         private void ValidateOrchestrationMethod<TClass>(MethodInfo? method, out string name, out Mock<IDurableOrchestrationContext> mock) where TClass : class
@@ -430,7 +535,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             name = method.GetCustomAttribute<FunctionNameAttribute>()?.Name ?? throw new Exception("This exception should never be thrown since we checked the attribute earlier");
 
             this._services.AddSingleton<TClass>();
-            mock = this.GetMockedOrchestrationContext();
+            mock = this._orchestrationMock;
         }
 
     }

@@ -19,6 +19,18 @@ namespace InProcessDurableFunctions
         private readonly ILogger<BusinessLogicFunctions> Logger;
 
 
+        [FunctionName(nameof(CallVoidEntityOrchestration))]
+        public async Task CallVoidEntityOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
+        {
+            await context.CallEntityAsync(new EntityId(nameof(EntityFunctions.VoidEntity), "foo"), "bar");
+        }
+
+        [FunctionName(nameof(IncreaseCounterOrchestration))]
+        public async Task<int> IncreaseCounterOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
+        {
+            return await context.CallEntityAsync<int>(new EntityId(nameof(EntityFunctions.GenericCounterEntity), "foo"), "bar");
+        }
+
         [FunctionName(nameof(ValidateBusinessIdOrchestration))]
         public async Task<bool> ValidateBusinessIdOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
