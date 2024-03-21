@@ -27,6 +27,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// Creates a new instance of the mocker class and specifies the services to build the mocker from.
         /// </summary>
         /// <param name="services">The services that contain dependencies for the classes declaring orchestration, activity and entity functions.</param>
+        /// <param name="behavior">The behavior to use in the mocker.</param>
         /// <exception cref="ArgumentNullException">The exception that is thrown if <paramref name="services"/> is <c>null</c>.</exception>
         public OrchestrationContextMocker(IServiceCollection? services = null, MockBehavior behavior = MockBehavior.Strict)
         {
@@ -44,6 +45,9 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         };
 
 
+        /// <summary>
+        /// Returns the service collection the mocker is configured in.
+        /// </summary>
         public IServiceCollection Services { get; private set; }
 
         #region Activities
@@ -332,6 +336,12 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
         #region Entities
 
+        /// <summary>
+        /// Adds an entity function to the mocker.
+        /// </summary>
+        /// <typeparam name="TClass">The type of the class declaring the entity function.</typeparam>
+        /// <param name="expression">The expression representing the entity function.</param>
+        /// <exception cref="ArgumentException">The exception that is thrown if <paramref name="expression"/> does not represent an entity function.</exception>
         public OrchestrationContextMocker AddEntityFunction<TClass>(Expression<Func<TClass, Action<IDurableEntityContext>>> expression) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
@@ -347,6 +357,13 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             return this.AddEntityFunction(expression, callback);
         }
 
+        /// <summary>
+        /// Adds an entity function to the mocker.
+        /// </summary>
+        /// <typeparam name="TClass">The type of the class declaring the entity function.</typeparam>
+        /// <param name="expression">The expression representing the entity function.</param>
+        /// <param name="callback">The callback that will be called instead of the actual </param>
+        /// <exception cref="ArgumentException">The exception that is thrown if <paramref name="expression"/> does not represent an entity function.</exception>
         public OrchestrationContextMocker AddEntityFunction<TClass>(Expression<Func<TClass, Action<IDurableEntityContext>>> expression, Action<IDurableEntityContext> callback) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
@@ -374,7 +391,14 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             return this;
         }
 
-        public OrchestrationContextMocker AddEntityFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableEntityContext, TResult>>> expression) where TClass : class
+        /// <summary>
+        /// Adds an entity function to the mocker.
+        /// </summary>
+        /// <typeparam name="TClass">The type of the class declaring the entity function.</typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="expression">The expression representing the entity function.</param>
+        /// <exception cref="ArgumentException">The exception that is thrown if <paramref name="expression"/> does not represent an entity function.</exception>
+        public OrchestrationContextMocker AddEntityFunction<TClass, TResult>(Expression<Func<TClass, Action<IDurableEntityContext>>> expression) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateEntityMethod<TClass>(mi, out var name, out var mock);
@@ -389,7 +413,15 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             return this.AddEntityFunction(expression, callback);
         }
 
-        public OrchestrationContextMocker AddEntityFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableEntityContext, TResult>>> expression, Func<IDurableEntityContext, TResult> callback) where TClass : class
+        /// <summary>
+        /// Adds an entity function to the mocker.
+        /// </summary>
+        /// <typeparam name="TClass">The type of the class declaring the entity function.</typeparam>
+        /// <typeparam name="TResult"></typeparam>
+        /// <param name="expression">The expression representing the entity function.</param>
+        /// <param name="callback">The callback that will be called instead of the actual </param>
+        /// <exception cref="ArgumentException">The exception that is thrown if <paramref name="expression"/> does not represent an entity function.</exception>
+        public OrchestrationContextMocker AddEntityFunction<TClass, TResult>(Expression<Func<TClass, Action<IDurableEntityContext>>> expression, Func<IDurableEntityContext, TResult> callback) where TClass : class
         {
             MethodInfo mi = expression.ToMethodInfo() ?? throw new ArgumentException("The given expression is not a method expression.");
             this.ValidateEntityMethod<TClass>(mi, out var name, out var mock);
@@ -418,9 +450,15 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
         #endregion
 
+        /// <summary>
+        /// Calls the orchestration function represented by <paramref name="function"/>.
+        /// </summary>
+        /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+        /// <param name="function">An expression representing the orchestration function.</param>
+        /// <exception cref="ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
         public Task CallOrchestrationFunctionAsync<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> function) where TClass : class
         {
-            var method = function.ToMethodInfo() ?? throw new NullReferenceException("The expression does not represent a method.");
+            var method = function.ToMethodInfo() ?? throw new ArgumentException("The expression does not represent a method.");
             this.ValidateOrchestrationMethod<TClass>(method, out var name, out var mock);
 
             this.ApplySetups(mock);
@@ -429,9 +467,17 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             return result ?? Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Calls the orchestration function represented by <paramref name="function"/> and returns the value returned by the orchestration.
+        /// </summary>
+        /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+        /// <typeparam name="TResult">The type of the result returned by the orchestration.</typeparam>
+        /// <param name="function">An expression representing the orchestration function.</param>
+        /// <exception cref="ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
+        /// <exception cref="Exception">The exception that is thrown if the orchestration function does not return a value with the type specified in <typeparamref name="TResult"/>.</exception>
         public Task<TResult> CallOrchestrationFunctionAsync<TClass, TResult>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> function) where TClass : class
         {
-            var method = function.ToMethodInfo() ?? throw new NullReferenceException("The expression does not represent a method.");
+            var method = function.ToMethodInfo() ?? throw new ArgumentException("The expression does not represent a method.");
             this.ValidateOrchestrationMethod<TClass>(method, out var name, out var mock);
 
             this.ApplySetups(mock);

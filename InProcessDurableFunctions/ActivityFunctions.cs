@@ -21,12 +21,12 @@ namespace InProcessDurableFunctions
 
 
         [FunctionName(nameof(NormalizeBusinessIdActivity))]
-        public async Task<string> NormalizeBusinessIdActivity([ActivityTrigger] string input)
+        public Task<string> NormalizeBusinessIdActivity([ActivityTrigger] string input)
         {
-            return input
+            return Task.FromResult(input
                 ?.Replace(" ", "")
                 ?.Replace("-", "")
-                ?.ToUpper();
+                ?.ToUpper());
 
         }
     }

@@ -4,6 +4,19 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>Denomica Azure Functions Test Tools</Title>
+    <Version>1.0.0-alpha.1</Version>
+    <Authors>Mika Berglund</Authors>
+    <Description>Testing tools for Azure Functions applications running in in-process execution model.</Description>
+    <Copyright>Copyright (c) Mika Berglund 2024</Copyright>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>azure functions;durable functions;unit testing</PackageTags>
+    <PackageProjectUrl>https://github.com/Denomica/Denomica.AzureFunctions.TestTools/wiki</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Denomica/Denomica.AzureFunctions.TestTools</RepositoryUrl>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <DocumentationFile>Denomica.AzureFunctions.TestTools.InProcess.xml</DocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -25,6 +38,13 @@
 
   <ItemGroup>
     <Folder Include="Core\Reflection\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

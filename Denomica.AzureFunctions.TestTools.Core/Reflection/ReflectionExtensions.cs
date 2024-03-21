@@ -15,10 +15,16 @@ using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 
 namespace Denomica.AzureFunctions.TestTools.Core.Reflection
 {
+    /// <summary>
+    /// Reflection extensions for unit testing and mocking.
+    /// </summary>
     public static class ReflectionExtensions
     {
 
 #if INPROCESS
+        /// <summary>
+        /// Determines wether the <paramref name="method"/> represents an orchestration function supported by this testing tool library.
+        /// </summary>
         public static bool IsOrchestrationFunction(this MethodInfo method)
         {
             return method.IsPublic

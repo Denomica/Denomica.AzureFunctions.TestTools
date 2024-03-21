@@ -14,11 +14,11 @@ namespace InProcessDurableFunctions
     {
 
         [FunctionName(nameof(GenericCounterEntity))]
-        public int GenericCounterEntity([EntityTrigger] IDurableEntityContext context)
+        public void GenericCounterEntity([EntityTrigger] IDurableEntityContext context)
         {
             var counter = context.GetState<int>() + 1;
             context.SetState(counter);
-            return counter;
+            context.Return(counter);
         }
 
         [FunctionName(nameof(VoidEntity))]

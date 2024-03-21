@@ -1,0 +1,296 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Denomica.AzureFunctions.TestTools.InProcess</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions">
+            <summary>
+            Service collection extensions for <c>Denomica.AzureFunctions.TestTools.InProcess</c>.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddOrchestrationContextMocker(Microsoft.Extensions.DependencyInjection.IServiceCollection,Moq.MockBehavior)">
+            <summary>
+            Adds an <see cref="T:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker"/> instance to the service collection as a singleton service.
+            </summary>
+            <param name="services">The service collection to add the mocker instance to.</param>
+            <param name="behavior">The behavior to configure the mocker with. Defaults to <see cref="F:Moq.MockBehavior.Strict"/>.</param>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.ServiceCollectionExtensions.AddEntityContextMocker(Microsoft.Extensions.DependencyInjection.IServiceCollection,Moq.MockBehavior)">
+            <summary>
+            Adds an <see cref="T:Denomica.AzureFunctions.TestTools.InProcess.EntityContextMocker"/> instance to the service collection as a singleton service.
+            </summary>
+            <param name="services">The service collection to add the mocker instance to.</param>
+            <param name="behavior">The behavior to configure the mocker with. Defaults to <see cref="F:Moq.MockBehavior.Strict"/>.</param>
+        </member>
+        <member name="T:Denomica.AzureFunctions.TestTools.InProcess.EntityContextMocker">
+            <summary>
+            A class that facilitates mocking <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableEntityContext"/> instances.
+            </summary>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.EntityContextMocker.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,Moq.MockBehavior)">
+            <summary>
+            Creates a new instance of the class.
+            </summary>
+            <param name="services">The service collection to work with.</param>
+            <param name="behavior">The mocking behavior.</param>
+        </member>
+        <member name="P:Denomica.AzureFunctions.TestTools.InProcess.EntityContextMocker.Services">
+            <summary>
+            Returns the service collection the mocker is configured in.
+            </summary>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.EntityContextMocker.GetEntityContext">
+            <summary>
+            Returns a mocked durable entity context instance.
+            </summary>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.EntityContextMocker.GetEntityContext``1(``0)">
+            <summary>
+            Returns a mocked durable entity context instance where <see cref="M:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableEntityContext.GetInput(System.Type)"/> returns <paramref name="input"/>.
+            </summary>
+            <typeparam name="TInput">The type of the input.</typeparam>
+            <param name="input">The input to specify in the mocked context instance.</param>
+        </member>
+        <member name="T:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker">
+            <summary>
+            A mocker class that is used to mock <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext"/> instances for effective testing.
+            </summary>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.#ctor(Microsoft.Extensions.DependencyInjection.IServiceCollection,Moq.MockBehavior)">
+            <summary>
+            Creates a new instance of the mocker class and specifies the services to build the mocker from.
+            </summary>
+            <param name="services">The services that contain dependencies for the classes declaring orchestration, activity and entity functions.</param>
+            <param name="behavior">The behavior to use in the mocker.</param>
+            <exception cref="T:System.ArgumentNullException">The exception that is thrown if <paramref name="services"/> is <c>null</c>.</exception>
+        </member>
+        <member name="P:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.Services">
+            <summary>
+            Returns the service collection the mocker is configured in.
+            </summary>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddActivityFunction``1(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext,System.Threading.Tasks.Task}}})">
+            <summary>
+            Adds an activity function to the mocker. The function takes a <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext"/> as input and does not return any value.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+            <param name="expression">An expression representing the activity function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddActivityFunction``1(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext,System.Threading.Tasks.Task}}},System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext,System.Threading.Tasks.Task})">
+            <summary>
+            Adds an activity function to the mocker. The function takes a <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext"/> as input and does not return a value.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+            <param name="expression">An expression representing the activity function.</param>
+            <param name="callback">The callback that will be called instead of the actual activity function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddActivityFunction``2(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext,System.Threading.Tasks.Task{``1}}}})">
+            <summary>
+            Adds an activity function to the mocker. The function takes a <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext"/> as input and returns a <typeparamref name="TResult"/> instance.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+            <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
+            <param name="expression">An expression representing the activity function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddActivityFunction``2(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext,System.Threading.Tasks.Task{``1}}}},System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext,System.Threading.Tasks.Task{``1}})">
+            <summary>
+            Adds an activity function to the mocker. The function takes a <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext"/> as input and returns a <typeparamref name="TResult"/> instance.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+            <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
+            <param name="expression">An expression representing the activity function.</param>
+            <param name="callback">The callback that will be called instead of the actual activity function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddActivityFunction``2(System.Linq.Expressions.Expression{System.Func{``0,System.Func{``1,System.Threading.Tasks.Task}}})">
+            <summary>
+            Adds an activity function to the mocker. The function takes a <typeparamref name="TInput"/> as input and does not return a value.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+            <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.ActivityTriggerAttribute"/> attribute.</typeparam>
+            <param name="expression">An expression representing the activity function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddActivityFunction``2(System.Linq.Expressions.Expression{System.Func{``0,System.Func{``1,System.Threading.Tasks.Task}}},System.Func{``1,System.Threading.Tasks.Task})">
+            <summary>
+            Adds an activity function to the mocker. The function takes a <typeparamref name="TInput"/> as input and does not return a value.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+            <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.ActivityTriggerAttribute"/> attribute.</typeparam>
+            <param name="expression">An expression representing the activity function.</param>
+            <param name="callback">The callback that will be called instead of the actual activity function.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentException"></exception>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddActivityFunction``3(System.Linq.Expressions.Expression{System.Func{``0,System.Func{``1,System.Threading.Tasks.Task{``2}}}})">
+            <summary>
+            Adds an activity function to the mocker. The function takes a <typeparamref name="TInput"/> as input and returns a <typeparamref name="TResult"/> instance.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+            <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.ActivityTriggerAttribute"/> attribute.</typeparam>
+            <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
+            <param name="expression">An expression representing the activity function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddActivityFunction``3(System.Linq.Expressions.Expression{System.Func{``0,System.Func{``1,System.Threading.Tasks.Task{``2}}}},System.Func{``1,System.Threading.Tasks.Task{``2}})">
+            <summary>
+            Adds an activity function to the mocker. The function takes a <typeparamref name="TInput"/> as input and returns a <typeparamref name="TResult"/> instance.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+            <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.ActivityTriggerAttribute"/> attribute.</typeparam>
+            <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
+            <param name="expression">An expression representing the activity function.</param>
+            <param name="callback">The callback that will be called instead of the actual activity function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddOrchestrationFunction``1(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task}}})">
+            <summary>
+            Adds an orchestration function to the mocker. The function does not return a value.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+            <param name="expression">The expression representing the orchestration function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddOrchestrationFunction``1(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task}}},System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task})">
+            <summary>
+            Adds an orchestration function to the mocker. The function does not return a value.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+            <param name="expression">The expression representing the orchestration function.</param>
+            <param name="callback">The callback that will be called instead of the actual orchestration function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddOrchestrationFunction``2(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task{``1}}}})">
+            <summary>
+            Adds an orchestration function to the mocker. The function returns a <typeparamref name="TResult"/> instance.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+            <typeparam name="TResult">The type for the value returned by the orchestration.</typeparam>
+            <param name="expression">The expression representing the orchestration function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddOrchestrationFunction``2(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task{``1}}}},System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task{``1}})">
+            <summary>
+            Adds an orchestration function to the mocker. The function returns a <typeparamref name="TResult"/> instance.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+            <typeparam name="TResult">The type for the value returned by the orchestration.</typeparam>
+            <param name="expression">The expression representing the orchestration function.</param>
+            <param name="callback">The callback that will be called instead of the actual orchestration function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddEntityFunction``1(System.Linq.Expressions.Expression{System.Func{``0,System.Action{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableEntityContext}}})">
+            <summary>
+            Adds an entity function to the mocker.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the entity function.</typeparam>
+            <param name="expression">The expression representing the entity function.</param>
+            <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="expression"/> does not represent an entity function.</exception>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddEntityFunction``1(System.Linq.Expressions.Expression{System.Func{``0,System.Action{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableEntityContext}}},System.Action{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableEntityContext})">
+            <summary>
+            Adds an entity function to the mocker.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the entity function.</typeparam>
+            <param name="expression">The expression representing the entity function.</param>
+            <param name="callback">The callback that will be called instead of the actual </param>
+            <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="expression"/> does not represent an entity function.</exception>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddEntityFunction``2(System.Linq.Expressions.Expression{System.Func{``0,System.Action{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableEntityContext}}})">
+            <summary>
+            Adds an entity function to the mocker.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the entity function.</typeparam>
+            <typeparam name="TResult"></typeparam>
+            <param name="expression">The expression representing the entity function.</param>
+            <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="expression"/> does not represent an entity function.</exception>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddEntityFunction``2(System.Linq.Expressions.Expression{System.Func{``0,System.Action{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableEntityContext}}},System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableEntityContext,``1})">
+            <summary>
+            Adds an entity function to the mocker.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the entity function.</typeparam>
+            <typeparam name="TResult"></typeparam>
+            <param name="expression">The expression representing the entity function.</param>
+            <param name="callback">The callback that will be called instead of the actual </param>
+            <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="expression"/> does not represent an entity function.</exception>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.CallOrchestrationFunctionAsync``1(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task}}})">
+            <summary>
+            Calls the orchestration function represented by <paramref name="function"/>.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+            <param name="function">An expression representing the orchestration function.</param>
+            <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.CallOrchestrationFunctionAsync``2(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task}}})">
+            <summary>
+            Calls the orchestration function represented by <paramref name="function"/> and returns the value returned by the orchestration.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+            <typeparam name="TResult">The type of the result returned by the orchestration.</typeparam>
+            <param name="function">An expression representing the orchestration function.</param>
+            <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
+            <exception cref="T:System.Exception">The exception that is thrown if the orchestration function does not return a value with the type specified in <typeparamref name="TResult"/>.</exception>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.GetOrchestrationContext">
+            <summary>
+            Returns a mocked orchestration context instance without a specified input.
+            </summary>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.GetOrchestrationContext``1(``0)">
+            <summary>
+            Returns a mocked orchestration context instance that specifies <paramref name="input"/> as input to the orchestration function the context is sent to.
+            </summary>
+            <typeparam name="TInput">The type of the input.</typeparam>
+            <param name="input">The input value to send to the orchestration function.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.GetService``1">
+            <summary>
+            Returns a service from the service collection or <c>null</c> if the specified service is not found.
+            </summary>
+            <typeparam name="TService">The type of the service.</typeparam>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.GetService(System.Type)">
+            <summary>
+            Returns a service from the service collection or <c>null</c> if the specified service is not found.
+            </summary>
+            <param name="serviceType">The type of the service to return.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.GetRequiredService``1">
+            <summary>
+            Returns a service from the service collection or throws an exception if the service is not found.
+            </summary>
+            <typeparam name="TService">The type of the service.</typeparam>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.GetRequiredService(System.Type)">
+            <summary>
+            Returns a service from the service collection or throws an exception if the service is not found.
+            </summary>
+            <param name="serviceType">The type of the service to return.</param>
+        </member>
+        <member name="T:Denomica.AzureFunctions.TestTools.Core.Reflection.ReflectionExtensions">
+            <summary>
+            Reflection extensions for unit testing and mocking.
+            </summary>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.Core.Reflection.ReflectionExtensions.IsOrchestrationFunction(System.Reflection.MethodInfo)">
+            <summary>
+            Determines wether the <paramref name="method"/> represents an orchestration function supported by this testing tool library.
+            </summary>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.Core.Reflection.ReflectionExtensions.HasAttribute``1(System.Reflection.MethodInfo)">
+            <summary>
+            Returns <c>true</c> if <paramref name="method"/> is decorated with the specified attribute.
+            </summary>
+            <typeparam name="TAttribute">The method attribute to check.</typeparam>
+            <param name="method">The method to check.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.Core.Reflection.ReflectionExtensions.HasParameterWithAttribute``1(System.Reflection.MethodInfo)">
+            <summary>
+            Returns <c>true</c> if <paramref name="method"/> has a parameter decorated with the given attribute.
+            </summary>
+            <typeparam name="TAttribute">The parameter attribute to check.</typeparam>
+            <param name="method">The method to check.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.Core.Reflection.ReflectionExtensions.ToMethodInfo(System.Linq.Expressions.Expression)">
+            <summary>
+            Returns the method info for the method that <paramref name="expression"/> describes.
+            </summary>
+        </member>
+    </members>
+</doc>

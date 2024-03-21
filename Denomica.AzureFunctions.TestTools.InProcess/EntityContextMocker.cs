@@ -9,8 +9,16 @@ using System.Threading.Tasks;
 
 namespace Denomica.AzureFunctions.TestTools.InProcess
 {
+    /// <summary>
+    /// A class that facilitates mocking <see cref="IDurableEntityContext"/> instances.
+    /// </summary>
     public class EntityContextMocker
     {
+        /// <summary>
+        /// Creates a new instance of the class.
+        /// </summary>
+        /// <param name="services">The service collection to work with.</param>
+        /// <param name="behavior">The mocking behavior.</param>
         public EntityContextMocker(IServiceCollection? services = null, MockBehavior behavior = MockBehavior.Strict)
         {
             this.Services = services ?? new ServiceCollection();
@@ -22,15 +30,26 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         private Dictionary<string, Action> MockSetups = new Dictionary<string, Action>();
 
 
+        /// <summary>
+        /// Returns the service collection the mocker is configured in.
+        /// </summary>
         public IServiceCollection Services { get; private set; }
 
 
+        /// <summary>
+        /// Returns a mocked durable entity context instance.
+        /// </summary>
         public IDurableEntityContext GetEntityContext()
         {
             this.ApplySetups(this._mock);
             return this._mock.Object;
         }
 
+        /// <summary>
+        /// Returns a mocked durable entity context instance where <see cref="IDurableEntityContext.GetInput(Type)"/> returns <paramref name="input"/>.
+        /// </summary>
+        /// <typeparam name="TInput">The type of the input.</typeparam>
+        /// <param name="input">The input to specify in the mocked context instance.</param>
         public IDurableEntityContext GetEntityContext<TInput>(TInput input)
         {
             this._mock.Setup(x => x.GetInput<TInput>()).Returns(input);
