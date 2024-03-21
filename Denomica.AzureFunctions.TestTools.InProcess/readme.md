@@ -13,6 +13,11 @@ After you have added this library as a reference to your test project, have a lo
 
 ## Version Highlights
 
+### v1.0.0-alpha.2
+
+- Changed target framework to .NET Standard 2.1 to support both .NET6 and .NET8.
+- Added limited support for activity functions that take an `IDurableActivityContext` parameter.
+
 ### v1.0.0-alpha.1
 
 The initial prerelease of the library. This version has support for unit testing the following.

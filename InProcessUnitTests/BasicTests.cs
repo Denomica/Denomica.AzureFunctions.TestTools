@@ -75,6 +75,7 @@ namespace InProcessUnitTests
 
                     .AddActivityFunction<LoggingFunctions, string>(x => x.LogMessageActivity)
                     .AddActivityFunction<ActivityFunctions, string, string>(x => x.NormalizeBusinessIdActivity)
+                    .AddActivityFunction<ActivityFunctions>(x => x.NoUseActivity)
 
                     .AddEntityFunction<EntityFunctions, int>(x => x.GenericCounterEntity)
                     .AddEntityFunction<EntityFunctions>(x => x.VoidEntity)

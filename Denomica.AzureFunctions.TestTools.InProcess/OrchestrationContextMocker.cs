@@ -65,7 +65,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             Func<IDurableActivityContext, Task> callback = input =>
             {
                 var svc = this.GetServiceProvider().GetRequiredService<TClass>();
-                return mi.Invoke(svc, [input]) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
+                return mi.Invoke(svc, new object?[] { input }) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
             return this.AddActivityFunction(expression, callback);
@@ -108,7 +108,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             Func<IDurableActivityContext, Task<TResult>> callback = input =>
             {
                 var svc = this.GetServiceProvider().GetRequiredService<TClass>();
-                return mi.Invoke(svc, [input]) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
+                return mi.Invoke(svc, new object?[] { input }) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
             return this.AddActivityFunction(expression, callback);
@@ -152,7 +152,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             Func<TInput, Task> callback = input =>
             {
                 var svc = this.GetServiceProvider().GetRequiredService<TClass>();
-                return mi.Invoke(svc, [input]) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
+                return mi.Invoke(svc, new object?[] { input }) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
             return this.AddActivityFunction(expression, callback);
@@ -199,7 +199,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             Func<TInput, Task<TResult>> callback = input =>
             {
                 var svc = this.GetServiceProvider().GetRequiredService<TClass>();
-                return mi.Invoke(svc, [input]) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
+                return mi.Invoke(svc, new object?[] { input }) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
             return this.AddActivityFunction(expression, callback);
@@ -247,7 +247,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             Func<IDurableOrchestrationContext, Task> callback = context =>
             {
                 var svc = this.GetServiceProvider().GetRequiredService<TClass>();
-                return mi.Invoke(svc, [context]) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
+                return mi.Invoke(svc, new object?[] { context }) as Task ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
             return this.AddOrchestrationFunction(expression, callback);
@@ -296,7 +296,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             Func<IDurableOrchestrationContext, Task<TResult>> callback = context =>
             {
                 var svc = this.GetServiceProvider().GetRequiredService<TClass>();
-                return mi.Invoke(svc, [context]) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
+                return mi.Invoke(svc, new object?[] { context }) as Task<TResult> ?? throw new Exception($"The function '{name}' does not return a '{typeof(Task).FullName}' object.");
             };
 
             return this.AddOrchestrationFunction(expression, callback);
@@ -350,7 +350,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             Action<IDurableEntityContext> callback = context =>
             {
                 var svc = this.GetServiceProvider().GetRequiredService<TClass>();
-                mi.Invoke(svc, [context]);
+                mi.Invoke(svc, new object?[] { context });
             };
 
 
@@ -406,7 +406,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
             Func<IDurableEntityContext, TResult> callback = context =>
             {
                 var svc = this.GetServiceProvider().GetRequiredService<TClass>();
-                var result = mi.Invoke(svc, [context]);
+                var result = mi.Invoke(svc, new object?[] { context });
                 return result is TResult ? (TResult)result : throw new Exception($"The entity function '{name}' did not return a valid result of type '{typeof(TResult).FullName}'.");
             };
 
@@ -463,7 +463,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
             this.ApplySetups(mock);
             var service = this.GetRequiredService<TClass>();
-            var result = method.Invoke(service, [ mock.Object ]) as Task;
+            var result = method.Invoke(service, new object?[] { mock.Object }) as Task;
             return result ?? Task.CompletedTask;
         }
 
@@ -482,7 +482,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
             this.ApplySetups(mock);
             var service = this.GetRequiredService<TClass>();
-            var result = method.Invoke(service, [mock.Object]) as Task<TResult>;
+            var result = method.Invoke(service, new object?[] { mock.Object }) as Task<TResult>;
             return result ?? throw new Exception($"Orchestration function '{name}' did not return Task<{typeof(TResult).FullName}>.");
         }
 

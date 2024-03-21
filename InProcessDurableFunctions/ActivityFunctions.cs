@@ -29,5 +29,12 @@ namespace InProcessDurableFunctions
                 ?.ToUpper());
 
         }
+
+        [FunctionName(nameof(NoUseActivity))]
+        public Task NoUseActivity([ActivityTrigger] IDurableActivityContext context)
+        {
+
+            return Task.CompletedTask;
+        }
     }
 }
