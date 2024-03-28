@@ -1,4 +1,5 @@
 ﻿using Azure.Data.Tables;
+using Denomica.AzureFunctions.TestTools.Core;
 using Denomica.AzureFunctions.TestTools.Core.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -49,6 +50,62 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// Returns the service collection the mocker is configured in.
         /// </summary>
         public IServiceCollection Services { get; private set; }
+
+        #region Orchestration Context Properties
+
+        private Dictionary<string, DateTime> CurrentUtcDateTimes = new Dictionary<string, DateTime>();
+        /// <summary>
+        /// Adds a default mock that returns a value from the <see cref="IDurableOrchestrationContext.CurrentUtcDateTime"/> property.
+        /// </summary>
+        /// <remarks>
+        /// The default implementation returns a unique value for each unique callstack from where the 
+        /// <see cref="IDurableOrchestrationContext.CurrentUtcDateTime"/> property is called in your code.
+        /// </remarks>
+        public OrchestrationContextMocker AddCurrentUtcDateTime()
+        {
+            _orchestrationMock.SetupGet<DateTime>(x => x.CurrentUtcDateTime)
+                .Returns(() =>
+                {
+                    var stack = new System.Diagnostics.StackTrace();
+                    var frames = stack.GetFrames();
+                    var ix = frames.ToList().FindIndex(x => x.GetMethod().Name == "get_CurrentUtcDateTime");
+                    var str = string.Join(string.Empty, frames.Skip(ix + 1).ToList());
+                    var id = str.Hash();
+
+                    if(!this.CurrentUtcDateTimes.ContainsKey(id))
+                    {
+                        this.CurrentUtcDateTimes[id] = DateTime.UtcNow;
+                    }
+
+                    return this.CurrentUtcDateTimes[id];
+                });
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="DateTime"/> value that will be returned by the <see cref="IDurableOrchestrationContext.CurrentUtcDateTime"/> property.
+        /// </summary>
+        /// <param name="currentUtcDateTime">The date time to return.</param>
+        public OrchestrationContextMocker AddCurrentUtcDateTime(DateTime currentUtcDateTime)
+        {
+            _orchestrationMock.SetupGet<DateTime>(x => x.CurrentUtcDateTime)
+                .Returns(currentUtcDateTime.ToUniversalTime());
+
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a delegate that returns a <see cref="DateTime"/> value that is returned by the <see cref="IDurableOrchestrationContext.CurrentUtcDateTime"/> property.
+        /// </summary>
+        /// <param name="dateTimeProvider">A delegate that returns a <see cref="DateTime"/> value.</param>
+        public OrchestrationContextMocker AddCurrentUtcDateTime(Func<DateTime> dateTimeProvider)
+        {
+            _orchestrationMock.SetupGet<DateTime>(x => x.CurrentUtcDateTime)
+                .Returns(dateTimeProvider.Invoke().ToUniversalTime());
+
+            return this;
+        }
+        #endregion
 
         #region Activities
 
@@ -468,6 +525,27 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         }
 
         /// <summary>
+        /// Calls the orchestration function represented by <paramref name="function"/>.
+        /// </summary>
+        /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+        /// <typeparam name="TInput">The type of the input parameter.</typeparam>
+        /// <param name="function">An expression representing the orchestration function.</param>
+        /// <param name="input">The input to send to the orchestration function.</param>
+        /// <exception cref="ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
+        public Task CallOrchestrationFunctionAsync<TClass, TInput>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> function, TInput input) where TClass : class
+        {
+            var method = function.ToMethodInfo() ?? throw new ArgumentException("The expression does not represent a method.");
+            this.ValidateOrchestrationMethod<TClass>(method, out var name, out var mock);
+
+            this.MockInput<TInput>(mock, input);
+
+            this.ApplySetups(mock);
+            var service = this.GetRequiredService<TClass>();
+            var result = method.Invoke(service, new object?[] { mock.Object }) as Task;
+            return result ?? Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Calls the orchestration function represented by <paramref name="function"/> and returns the value returned by the orchestration.
         /// </summary>
         /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
@@ -479,6 +557,29 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         {
             var method = function.ToMethodInfo() ?? throw new ArgumentException("The expression does not represent a method.");
             this.ValidateOrchestrationMethod<TClass>(method, out var name, out var mock);
+
+            this.ApplySetups(mock);
+            var service = this.GetRequiredService<TClass>();
+            var result = method.Invoke(service, new object?[] { mock.Object }) as Task<TResult>;
+            return result ?? throw new Exception($"Orchestration function '{name}' did not return Task<{typeof(TResult).FullName}>.");
+        }
+
+        /// <summary>
+        /// Calls the orchestration function represented by <paramref name="function"/> and returns the value returned by the orchestration.
+        /// </summary>
+        /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+        /// <typeparam name="TInput">The type of the input parameter.</typeparam>
+        /// <typeparam name="TResult">The type of the result returned by the orchestration.</typeparam>
+        /// <param name="function">An expression representing the orchestration function.</param>
+        /// <param name="input">The input parameter.</param>
+        /// <exception cref="ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
+        /// <exception cref="Exception">The exception that is thrown if the orchestration function does not return a value with the type specified in <typeparamref name="TResult"/>.</exception>
+        public Task<TResult> CallOrchestrationFunctionAsync<TClass, TInput, TResult>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> function, TInput input) where TClass : class
+        {
+            var method = function.ToMethodInfo() ?? throw new ArgumentException("The expression does not represent a method.");
+            this.ValidateOrchestrationMethod<TClass>(method, out var name, out var mock);
+
+            this.MockInput<TInput>(mock, input);
 
             this.ApplySetups(mock);
             var service = this.GetRequiredService<TClass>();
@@ -502,7 +603,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <param name="input">The input value to send to the orchestration function.</param>
         public IDurableOrchestrationContext GetOrchestrationContext<TInput>(TInput input)
         {
-            this._orchestrationMock.Setup(x => x.GetInput<TInput>()).Returns(input);
+            this.MockInput<TInput>(this._orchestrationMock, input);
             this.ApplySetups(this._orchestrationMock);
 
             return this._orchestrationMock.Object;
@@ -557,6 +658,11 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         private IServiceProvider GetServiceProvider()
         {
             return this.Services.BuildServiceProvider();
+        }
+
+        private void MockInput<TInput>(Mock<IDurableOrchestrationContext> mock, TInput input)
+        {
+            mock.Setup(x => x.GetInput<TInput>()).Returns(input);
         }
 
         private void ValidateActivityMethod<TClass>(MethodInfo? method, out string name, out Mock<IDurableOrchestrationContext> mock) where TClass : class

@@ -13,6 +13,18 @@ After you have added this library as a reference to your test project, have a lo
 
 ## Version Highlights
 
+### v1.0.0.alpha.5
+
+- Added support for mocking `IDurableOrchestrationContext.CurrentUtcDateTime` property.
+
+### v1.0.0.alpha.4
+
+- Added an overloaded method that was missing from the previous version.
+
+### v1.0.0.alpha.3
+
+- Added a shorthand method for calling an orchestration function with input.
+
 ### v1.0.0-alpha.2
 
 - Changed target framework to .NET Standard 2.1 to support both .NET6 and .NET8.

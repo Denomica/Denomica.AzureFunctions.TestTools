@@ -62,16 +62,59 @@ namespace InProcessUnitTests
             Assert.IsTrue(entityWasCalled);
         }
 
+        [TestMethod]
+        public async Task Test05()
+        {
+            var mocker = this.GetMocker();
+            var id = await mocker.CallOrchestrationFunctionAsync<OrchestrationFunctions, string, string>(x => x.NormalizeBusinessIdOrchestration, "fi 12345678-9");
+            Assert.AreEqual("FI123456789", id);
+        }
+
+        [TestMethod]
+        public async Task Test06()
+        {
+            var mocker = Services.GetServices()
+                .AddOrchestrationContextMocker()
+                    .AddOrchestrationFunction<OrchestrationFunctions>(x => x.NormalizeBusinessIdOrchestration)
+                    .AddActivityFunction<ActivityFunctions, string, string>(x => x.NormalizeBusinessIdActivity);
+
+            var id = await mocker.CallOrchestrationFunctionAsync<OrchestrationFunctions, string, string>(x => x.NormalizeBusinessIdOrchestration, "fi 12345678");
+            Assert.AreEqual("FI12345678", id);
+        }
+
+        [TestMethod]
+        public async Task Test07()
+        {
+            var startDate = DateTimeOffset.UtcNow;
+
+            // Call into an orchestration and expect no error.
+            var mocker = this.GetMocker();
+            var dt = await mocker.CallOrchestrationFunctionAsync<OrchestrationFunctions, DateTimeOffset>(x => x.GetCurrentDateTimeOrchestration);
+            Assert.IsTrue(dt > startDate);
+        }
+
+        [TestMethod]
+        public async Task Test08()
+        {
+            var mocker = this.GetMocker();
+            var dt1 = await mocker.CallOrchestrationFunctionAsync<OrchestrationFunctions, DateTimeOffset>(x => x.GetCurrentDateTimeOrchestration);
+            var dt2 = await mocker.CallOrchestrationFunctionAsync<OrchestrationFunctions, DateTimeOffset>(x => x.GetCurrentDateTimeOrchestration);
+            Assert.AreNotEqual(dt1, dt2);
+        }
+
 
         private OrchestrationContextMocker GetMocker()
         {
             return Services.GetServices()
                 .AddOrchestrationContextMocker(behavior: Moq.MockBehavior.Strict)
+                    .AddCurrentUtcDateTime()
+                    
                     .AddOrchestrationFunction<OrchestrationFunctions, bool>(x => x.ValidateBusinessIdOrchestration)
                     .AddOrchestrationFunction<OrchestrationFunctions, string>(x => x.NormalizeBusinessIdOrchestration)
                     .AddOrchestrationFunction<LoggingFunctions>(x => x.LogMessageOrchestration)
                     .AddOrchestrationFunction<OrchestrationFunctions>(x => x.IncreaseCounterOrchestration)
                     .AddOrchestrationFunction<OrchestrationFunctions>(x => x.CallVoidEntityOrchestration)
+                    .AddOrchestrationFunction<OrchestrationFunctions>(x => x.GetCurrentDateTimeOrchestration)
 
                     .AddActivityFunction<LoggingFunctions, string>(x => x.LogMessageActivity)
                     .AddActivityFunction<ActivityFunctions, string, string>(x => x.NormalizeBusinessIdActivity)
@@ -87,5 +130,6 @@ namespace InProcessUnitTests
                 .BuildServiceProvider()
                 .GetRequiredService<OrchestrationContextMocker>();
         }
+
     }
 }

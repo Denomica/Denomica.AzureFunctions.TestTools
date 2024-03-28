@@ -70,6 +70,27 @@
             Returns the service collection the mocker is configured in.
             </summary>
         </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddCurrentUtcDateTime">
+            <summary>
+            Adds a default mock that returns a value from the <see cref="P:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext.CurrentUtcDateTime"/> property.
+            </summary>
+            <remarks>
+            The default implementation returns a unique value for each unique callstack from where the 
+            <see cref="P:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext.CurrentUtcDateTime"/> property is called in your code.
+            </remarks>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddCurrentUtcDateTime(System.DateTime)">
+            <summary>
+            Adds a <see cref="T:System.DateTime"/> value that will be returned by the <see cref="P:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext.CurrentUtcDateTime"/> property.
+            </summary>
+            <param name="currentUtcDateTime">The date time to return.</param>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddCurrentUtcDateTime(System.Func{System.DateTime})">
+            <summary>
+            Adds a delegate that returns a <see cref="T:System.DateTime"/> value that is returned by the <see cref="P:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext.CurrentUtcDateTime"/> property.
+            </summary>
+            <param name="dateTimeProvider">A delegate that returns a <see cref="T:System.DateTime"/> value.</param>
+        </member>
         <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.AddActivityFunction``1(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext,System.Threading.Tasks.Task}}})">
             <summary>
             Adds an activity function to the mocker. The function takes a <see cref="T:Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableActivityContext"/> as input and does not return any value.
@@ -216,6 +237,16 @@
             <param name="function">An expression representing the orchestration function.</param>
             <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
         </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.CallOrchestrationFunctionAsync``2(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task}}},``1)">
+            <summary>
+            Calls the orchestration function represented by <paramref name="function"/>.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+            <typeparam name="TInput">The type of the input parameter.</typeparam>
+            <param name="function">An expression representing the orchestration function.</param>
+            <param name="input">The input to send to the orchestration function.</param>
+            <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
+        </member>
         <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.CallOrchestrationFunctionAsync``2(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task}}})">
             <summary>
             Calls the orchestration function represented by <paramref name="function"/> and returns the value returned by the orchestration.
@@ -223,6 +254,18 @@
             <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
             <typeparam name="TResult">The type of the result returned by the orchestration.</typeparam>
             <param name="function">An expression representing the orchestration function.</param>
+            <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
+            <exception cref="T:System.Exception">The exception that is thrown if the orchestration function does not return a value with the type specified in <typeparamref name="TResult"/>.</exception>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.InProcess.OrchestrationContextMocker.CallOrchestrationFunctionAsync``3(System.Linq.Expressions.Expression{System.Func{``0,System.Func{Microsoft.Azure.WebJobs.Extensions.DurableTask.IDurableOrchestrationContext,System.Threading.Tasks.Task}}},``1)">
+            <summary>
+            Calls the orchestration function represented by <paramref name="function"/> and returns the value returned by the orchestration.
+            </summary>
+            <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+            <typeparam name="TInput">The type of the input parameter.</typeparam>
+            <typeparam name="TResult">The type of the result returned by the orchestration.</typeparam>
+            <param name="function">An expression representing the orchestration function.</param>
+            <param name="input">The input parameter.</param>
             <exception cref="T:System.ArgumentException">The exception that is thrown if <paramref name="function"/> does not point to a callable orchestration function.</exception>
             <exception cref="T:System.Exception">The exception that is thrown if the orchestration function does not return a value with the type specified in <typeparamref name="TResult"/>.</exception>
         </member>
@@ -261,6 +304,16 @@
             Returns a service from the service collection or throws an exception if the service is not found.
             </summary>
             <param name="serviceType">The type of the service to return.</param>
+        </member>
+        <member name="T:Denomica.AzureFunctions.TestTools.Core.ExtensionFunctions">
+            <summary>
+            Extension methods.
+            </summary>
+        </member>
+        <member name="M:Denomica.AzureFunctions.TestTools.Core.ExtensionFunctions.Hash(System.String)">
+            <summary>
+            Hashes the current string using SHA 512.
+            </summary>
         </member>
         <member name="T:Denomica.AzureFunctions.TestTools.Core.Reflection.ReflectionExtensions">
             <summary>

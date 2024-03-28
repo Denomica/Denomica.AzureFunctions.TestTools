@@ -25,6 +25,13 @@ namespace InProcessDurableFunctions
             await context.CallEntityAsync(new EntityId(nameof(EntityFunctions.VoidEntity), "foo"), "bar");
         }
 
+        [FunctionName(nameof(GetCurrentDateTimeOrchestration))]
+        public Task<DateTimeOffset> GetCurrentDateTimeOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
+        {
+            DateTimeOffset dto = context.CurrentUtcDateTime;
+            return Task.FromResult(dto);
+        }
+
         [FunctionName(nameof(IncreaseCounterOrchestration))]
         public async Task<int> IncreaseCounterOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
