@@ -13,6 +13,9 @@ After you have added this library as a reference to your test project, have a lo
 
 ## Version Highlights
 
+### v1.0.0.alpha.6
+
+- Added mocking of activity functions that specify a return value, but orchestrations call them without examining the return value, i.e. `context.CallActivityAsync()` instead of `context.CallActivityAsync<TResult>()`.
 ### v1.0.0.alpha.5
 
 - Added support for mocking `IDurableOrchestrationContext.CurrentUtcDateTime` property.

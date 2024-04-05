@@ -19,6 +19,29 @@ namespace InProcessDurableFunctions
         private readonly ILogger<ActivityFunctions> Logger;
 
 
+        [FunctionName(nameof(ActivityWithoutInputOrOutput))]
+        public Task ActivityWithoutInputOrOutput([ActivityTrigger] IDurableActivityContext context)
+        {
+            return Task.CompletedTask;
+        }
+
+        [FunctionName(nameof(ActivityWithStringOutputOnly))]
+        public Task<string> ActivityWithStringOutputOnly([ActivityTrigger] IDurableActivityContext context)
+        {
+            return Task.FromResult(Guid.NewGuid().ToString());
+        }
+
+        [FunctionName(nameof(ActivityWithStringInputAndNoOutput))]
+        public Task ActivityWithStringInputAndNoOutput([ActivityTrigger] string input)
+        {
+            return Task.CompletedTask;
+        }
+
+        [FunctionName(nameof(ActivityWithStringInputAndStringOutput))]
+        public Task<string> ActivityWithStringInputAndStringOutput([ActivityTrigger] string input)
+        {
+            return Task.FromResult(input);
+        }
 
         [FunctionName(nameof(NormalizeBusinessIdActivity))]
         public Task<string> NormalizeBusinessIdActivity([ActivityTrigger] string input)
@@ -36,5 +59,12 @@ namespace InProcessDurableFunctions
 
             return Task.CompletedTask;
         }
+
+        [FunctionName(nameof(GetDateTimeActivity))]
+        public Task<DateTime> GetDateTimeActivity([ActivityTrigger] IDurableActivityContext context)
+        {
+            return Task.FromResult(DateTime.Now);
+        }
+
     }
 }

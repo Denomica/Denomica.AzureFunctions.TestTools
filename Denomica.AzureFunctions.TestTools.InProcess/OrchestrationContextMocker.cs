@@ -190,6 +190,16 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
                 moc.Setup(x => x.CallActivityWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<IDurableActivityContext>()))
                     .Returns((string fn, RetryOptions ro, IDurableActivityContext input) => callback(input));
+
+                //----------------------------------------------------------------------------------------------------------------
+                // Add also the methods that don't specify the result type, because activity functions can be
+                // called without handling the return value.
+                moc.Setup(x => x.CallActivityAsync(name, It.IsAny<object?>()))
+                    .Returns((string fn, IDurableActivityContext input) => callback(input));
+
+                moc.Setup(x => x.CallActivityWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<object?>()))
+                    .Returns((string fn, RetryOptions ro, IDurableActivityContext input) => callback(input));
+                //----------------------------------------------------------------------------------------------------------------
             };
 
             return this;
@@ -282,6 +292,16 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
 
                 moc.Setup(x => x.CallActivityWithRetryAsync<TResult>(name, It.IsAny<RetryOptions>(), It.IsAny<TInput>()))
                     .Returns((string fn, RetryOptions ro, TInput input) => callback(input));
+
+                //----------------------------------------------------------------------------------------------------------------
+                // Add also the methods that don't specify the result type, because activity functions can be
+                // called without handling the return value.
+                moc.Setup(x => x.CallActivityAsync(name, It.IsAny<TInput>()))
+                    .Returns((string fn, TInput input) => callback(input));
+
+                moc.Setup(x => x.CallActivityWithRetryAsync(name, It.IsAny<RetryOptions>(), It.IsAny<TInput>()))
+                    .Returns((string fn, RetryOptions ro, TInput input) => callback(input));
+                //----------------------------------------------------------------------------------------------------------------
             };
 
             return this;

@@ -102,6 +102,62 @@ namespace InProcessUnitTests
             Assert.AreNotEqual(dt1, dt2);
         }
 
+        [TestMethod]
+        public async Task Test09()
+        {
+            bool activityCalled = false;
+
+            var mocker = this.GetMocker()
+                .AddActivityFunction<ActivityFunctions, string, string>(x => x.NormalizeBusinessIdActivity, input =>
+                {
+                    activityCalled = true;
+                    return Task.FromResult(input);
+                })
+                ;
+
+            await mocker.CallOrchestrationFunctionAsync<OrchestrationFunctions>(x => x.CallActivityFunctionWithoutResultOrchestrtion);
+
+            Assert.IsTrue(activityCalled);
+        }
+
+        [TestMethod]
+        public async Task Test10()
+        {
+            bool activityCalled = false;
+
+            var mocker = this.GetMocker()
+                .AddActivityFunction<ActivityFunctions, DateTime>(x => x.GetDateTimeActivity, context =>
+                {
+                    activityCalled = true;
+                    return Task.FromResult(DateTime.Now);
+                });
+
+            await mocker.CallOrchestrationFunctionAsync<OrchestrationFunctions>(x => x.CallGetDateTimeActivityWithoutHandlingResultOrchestration);
+
+            Assert.IsTrue(activityCalled);
+        }
+
+        [TestMethod]
+        public async Task Test11()
+        {
+            int callCount = 0;
+            var mocker = this.GetMocker()
+                .AddActivityFunction<ActivityFunctions, string>(x => x.ActivityWithStringOutputOnly, context =>
+                {
+                    callCount++;
+                    return Task.FromResult("");
+                })
+                .AddActivityFunction<ActivityFunctions, string, string>(x => x.ActivityWithStringInputAndStringOutput, input =>
+                {
+                    callCount++;
+                    return Task.FromResult(input);
+                })
+                ;
+
+            await mocker.CallOrchestrationFunctionAsync<OrchestrationFunctions>(x => x.CallVariousActivitiesOrchestration);
+
+            Assert.AreEqual(2, callCount);
+        }
 
         private OrchestrationContextMocker GetMocker()
         {

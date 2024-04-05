@@ -19,6 +19,25 @@ namespace InProcessDurableFunctions
         private readonly ILogger<OrchestrationFunctions> Logger;
 
 
+        [FunctionName(nameof(CallVariousActivitiesOrchestration))]
+        public async Task CallVariousActivitiesOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
+        {
+            await context.CallActivityAsync(nameof(ActivityFunctions.ActivityWithStringOutputOnly), null);
+            await context.CallActivityAsync(nameof(ActivityFunctions.ActivityWithStringInputAndStringOutput), Guid.NewGuid().ToString());
+        }
+
+        [FunctionName(nameof(CallActivityFunctionWithoutResultOrchestrtion))]
+        public async Task CallActivityFunctionWithoutResultOrchestrtion([OrchestrationTrigger] IDurableOrchestrationContext context)
+        {
+            await context.CallActivityAsync(nameof(ActivityFunctions.NormalizeBusinessIdActivity), "fi 1234567-8");
+        }
+
+        [FunctionName(nameof(CallGetDateTimeActivityWithoutHandlingResultOrchestration))]
+        public async Task CallGetDateTimeActivityWithoutHandlingResultOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
+        {
+            await context.CallActivityAsync(nameof(ActivityFunctions.GetDateTimeActivity), null);
+        }
+
         [FunctionName(nameof(CallVoidEntityOrchestration))]
         public async Task CallVoidEntityOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
