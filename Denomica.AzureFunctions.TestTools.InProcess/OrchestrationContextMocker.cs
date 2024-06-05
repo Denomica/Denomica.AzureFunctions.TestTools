@@ -112,7 +112,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an activity function to the mocker. The function takes a <see cref="IDurableActivityContext"/> as input and does not return any value.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the activity function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
         public OrchestrationContextMocker AddActivityFunction<TClass>(Expression<Func<TClass, Func<IDurableActivityContext, Task>>> expression) where TClass : class
         {
@@ -131,7 +131,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an activity function to the mocker. The function takes a <see cref="IDurableActivityContext"/> as input and does not return a value.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the activity function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
         /// <param name="callback">The callback that will be called instead of the actual activity function.</param>
         public OrchestrationContextMocker AddActivityFunction<TClass>(Expression<Func<TClass, Func<IDurableActivityContext, Task>>> expression, Func<IDurableActivityContext, Task> callback) where TClass : class
@@ -154,7 +154,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an activity function to the mocker. The function takes a <see cref="IDurableActivityContext"/> as input and returns a <typeparamref name="TResult"/> instance.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the activity function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
         public OrchestrationContextMocker AddActivityFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableActivityContext, Task<TResult>>>> expression) where TClass : class
@@ -174,7 +174,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an activity function to the mocker. The function takes a <see cref="IDurableActivityContext"/> as input and returns a <typeparamref name="TResult"/> instance.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the activity function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
         /// <param name="callback">The callback that will be called instead of the actual activity function.</param>
@@ -208,7 +208,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an activity function to the mocker. The function takes a <typeparamref name="TInput"/> as input and does not return a value.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the activity function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="ActivityTriggerAttribute"/> attribute.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
         public OrchestrationContextMocker AddActivityFunction<TClass, TInput>(Expression<Func<TClass, Func<TInput, Task>>> expression) where TClass : class
@@ -228,7 +228,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an activity function to the mocker. The function takes a <typeparamref name="TInput"/> as input and does not return a value.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the activity function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="ActivityTriggerAttribute"/> attribute.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
         /// <param name="callback">The callback that will be called instead of the actual activity function.</param>
@@ -254,7 +254,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an activity function to the mocker. The function takes a <typeparamref name="TInput"/> as input and returns a <typeparamref name="TResult"/> instance.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the activity function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="ActivityTriggerAttribute"/> attribute.</typeparam>
         /// <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
@@ -275,7 +275,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an activity function to the mocker. The function takes a <typeparamref name="TInput"/> as input and returns a <typeparamref name="TResult"/> instance.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the activity function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the activity function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <typeparam name="TInput">The type of the input parameter to the activity function. The input parameter is decorated with the <see cref="ActivityTriggerAttribute"/> attribute.</typeparam>
         /// <typeparam name="TResult">The type of the return value from the activity function.</typeparam>
         /// <param name="expression">An expression representing the activity function.</param>
@@ -314,7 +314,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an orchestration function to the mocker. The function does not return a value.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the orchestration function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <param name="expression">The expression representing the orchestration function.</param>
         public OrchestrationContextMocker AddOrchestrationFunction<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> expression) where TClass : class
         {
@@ -333,7 +333,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an orchestration function to the mocker. The function does not return a value.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the orchestration function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <param name="expression">The expression representing the orchestration function.</param>
         /// <param name="callback">The callback that will be called instead of the actual orchestration function.</param>
         public OrchestrationContextMocker AddOrchestrationFunction<TClass>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task>>> expression, Func<IDurableOrchestrationContext, Task> callback) where TClass : class
@@ -362,7 +362,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an orchestration function to the mocker. The function returns a <typeparamref name="TResult"/> instance.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the orchestration function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <typeparam name="TResult">The type for the value returned by the orchestration.</typeparam>
         /// <param name="expression">The expression representing the orchestration function.</param>
         public OrchestrationContextMocker AddOrchestrationFunction<TClass, TResult>(Expression<Func<TClass, Func<IDurableOrchestrationContext, Task<TResult>>>> expression) where TClass : class
@@ -382,7 +382,7 @@ namespace Denomica.AzureFunctions.TestTools.InProcess
         /// <summary>
         /// Adds an orchestration function to the mocker. The function returns a <typeparamref name="TResult"/> instance.
         /// </summary>
-        /// <typeparam name="TClass">The type of the class declaring the orchestration function.</typeparam>
+        /// <typeparam name="TClass">The type of the class declaring the orchestration function. This class will also be added to the <see cref="Services"/> service collection.</typeparam>
         /// <typeparam name="TResult">The type for the value returned by the orchestration.</typeparam>
         /// <param name="expression">The expression representing the orchestration function.</param>
         /// <param name="callback">The callback that will be called instead of the actual orchestration function.</param>
