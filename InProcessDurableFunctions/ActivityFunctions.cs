@@ -66,5 +66,14 @@ namespace InProcessDurableFunctions
             return Task.FromResult(DateTime.Now);
         }
 
+        [FunctionName(nameof(GetCompanyCollectionGenericActivity))]
+        public Task<IEnumerable<IDictionary<string, object>>> GetCompanyCollectionGenericActivity([ActivityTrigger] IDurableActivityContext context)
+        {
+            return Task.FromResult<IEnumerable<IDictionary<string, object>>>(new List<Dictionary<string, object>>()
+            {
+                new Dictionary<string, object>{ { "businessId", "1234567-8" }, { "name", "Company #1" } },
+                new Dictionary<string, object>{ { "businessId", "9876543-2" }, { "name", "Company #2" } }
+            });
+        }
     }
 }

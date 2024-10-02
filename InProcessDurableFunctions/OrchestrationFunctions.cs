@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.WebJobs;
+﻿using InProcessDurableFunctions.Model;
+using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.DurableTask;
 using Microsoft.Extensions.Logging;
 using System;
@@ -42,6 +43,13 @@ namespace InProcessDurableFunctions
         public async Task CallVoidEntityOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
         {
             await context.CallEntityAsync(new EntityId(nameof(EntityFunctions.VoidEntity), "foo"), "bar");
+        }
+
+        [FunctionName(nameof(GetCompaniesGenericOrchestration))]
+        public async Task<IEnumerable<Company>> GetCompaniesGenericOrchestration([OrchestrationTrigger] IDurableOrchestrationContext context)
+        {
+            var result = await context.CallActivityAsync<IEnumerable<Company>>(nameof(ActivityFunctions.GetCompanyCollectionGenericActivity), null);
+            return result;
         }
 
         [FunctionName(nameof(GetCurrentDateTimeOrchestration))]
